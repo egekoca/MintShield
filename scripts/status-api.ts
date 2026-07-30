@@ -127,6 +127,27 @@ const staticAssets = new Map([
     },
   ],
   [
+    "/support",
+    {
+      type: "text/html; charset=utf-8",
+      body: readFileSync(resolve(webRoot, "support.html")),
+    },
+  ],
+  [
+    "/terms",
+    {
+      type: "text/html; charset=utf-8",
+      body: readFileSync(resolve(webRoot, "terms.html")),
+    },
+  ],
+  [
+    "/privacy",
+    {
+      type: "text/html; charset=utf-8",
+      body: readFileSync(resolve(webRoot, "privacy.html")),
+    },
+  ],
+  [
     "/app.js",
     {
       type: "text/javascript; charset=utf-8",

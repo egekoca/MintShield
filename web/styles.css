@@ -1822,6 +1822,139 @@ dialog::backdrop {
   }
 }
 
+.footer-meta {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.footer-meta nav,
+.info-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.footer-meta a,
+.info-footer a,
+.info-card a:not(.button),
+.info-back {
+  color: var(--orange);
+  text-decoration: none;
+}
+
+.footer-meta a:hover,
+.info-footer a:hover,
+.info-card a:not(.button):hover,
+.info-back:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.info-page {
+  min-height: 100vh;
+}
+
+.info-back {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.info-main {
+  min-height: calc(100vh - 230px);
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+.info-main > h1 {
+  max-width: 780px;
+  margin: 22px 0;
+  color: var(--green-strong);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(48px, 7vw, 92px);
+  font-weight: 500;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+}
+
+.info-lead {
+  max-width: 760px;
+  margin-bottom: 50px;
+  color: #536a61;
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+.info-card {
+  max-width: 900px;
+  margin-top: 18px;
+  padding: 34px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 20px 60px rgba(12, 47, 39, 0.07);
+}
+
+.info-card h2 {
+  margin: 0 0 12px;
+  color: var(--green-strong);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.info-card p {
+  max-width: 760px;
+  margin: 0 0 22px;
+  color: #5d7069;
+  line-height: 1.75;
+}
+
+.info-card .button {
+  width: fit-content;
+}
+
+.info-prose h2:not(:first-child) {
+  margin-top: 36px;
+}
+
+.info-prose p:last-child {
+  margin-bottom: 0;
+}
+
+.info-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 110px;
+  border-top: 1px solid var(--line);
+  color: #75867f;
+  font-size: 11px;
+}
+
+@media (max-width: 720px) {
+  footer.shell,
+  .info-footer {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 24px;
+    padding-block: 30px;
+  }
+
+  .footer-meta {
+    align-items: flex-start;
+  }
+
+  .info-main {
+    padding-top: 70px;
+    padding-bottom: 70px;
+  }
+
+  .info-card {
+    padding: 24px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
