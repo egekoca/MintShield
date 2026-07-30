@@ -11,6 +11,7 @@
   },
   "include": [
     "hardhat.config.ts",
+    "api/**/*.ts",
     "test/**/*.ts",
     "scripts/**/*.ts",
     "src/**/*.ts"

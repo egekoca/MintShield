@@ -4,9 +4,11 @@ cache/
 coverage/
 dist/
 .env
+.vercel
 deployments/local/
 data/
 *.db-shm
 *.db-wal
 *.log
 .DS_Store
+.env.local

@@ -35,7 +35,7 @@
     "check": "npm run build && npm run typecheck && hardhat test --no-compile"
   },
   "engines": {
-    "node": ">=22"
+    "node": "22.x"
   },
   "dependencies": {
     "@flarenetwork/smart-accounts-encoder": "0.1.2",
