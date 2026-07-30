@@ -241,6 +241,46 @@ export async function getXamanSignRequest(input: {
   );
 }
 
+export async function pingXaman(input: {
+  credentials: XamanCredentials;
+  fetchImpl?: FetchLike;
+}) {
+  const raw = await xamanRequest(
+    input.credentials,
+    "/ping",
+    { method: "GET" },
+    input.fetchImpl ?? fetch,
+  );
+  if (raw === null || typeof raw !== "object") {
+    throw new Error("Xaman returned an invalid ping response");
+  }
+  const auth =
+    "auth" in raw &&
+    raw.auth !== null &&
+    typeof raw.auth === "object"
+      ? (raw.auth as Record<string, unknown>)
+      : undefined;
+  const application =
+    auth?.application !== null &&
+    typeof auth?.application === "object"
+      ? (auth.application as Record<string, unknown>)
+      : undefined;
+  if (auth === undefined || application === undefined) {
+    throw new Error("Xaman ping did not authenticate the application");
+  }
+  if (application.disabled === true) {
+    throw new Error("Xaman application is disabled");
+  }
+  return {
+    authenticated: true as const,
+    applicationName:
+      typeof application.name === "string"
+        ? application.name
+        : "Xaman application",
+    disabled: false,
+  };
+}
+
 export function toPublicXamanStatus(raw: unknown) {
   if (raw === null || typeof raw !== "object") {
     throw new Error("Xaman returned an invalid status response");

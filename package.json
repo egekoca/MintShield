@@ -24,6 +24,7 @@
     "wallet:coston2:executor": "node --import tsx scripts/create-coston2-executor.ts",
     "preflight:integration": "node --env-file-if-exists=.env --import tsx scripts/integration-preflight.ts",
     "api:status": "node --env-file-if-exists=.env --import tsx scripts/status-api.ts",
+    "verify:xaman": "node --env-file-if-exists=.env --import tsx scripts/verify-xaman.ts",
     "executor:worker": "node --env-file-if-exists=.env --import tsx scripts/run-worker.ts",
     "executor:run": "node --env-file-if-exists=.env --import tsx scripts/run-executor.ts",
     "comparison:bare": "node --env-file-if-exists=.env --import tsx scripts/run-bare-comparison.ts",

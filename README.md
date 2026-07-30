@@ -177,6 +177,13 @@ XAMAN_API_KEY=...
 XAMAN_API_SECRET=...
 ```
 
+Verify the backend credentials without creating a signing payload or printing
+either credential:
+
+```bash
+npm run verify:xaman
+```
+
 ## Repository map
 
 ```text

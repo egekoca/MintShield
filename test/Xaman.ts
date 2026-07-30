@@ -4,6 +4,7 @@ import {
   buildXamanPaymentPayload,
   createXamanSignRequest,
   loadOptionalXamanCredentials,
+  pingXaman,
   toPublicXamanStatus,
 } from "../src/xaman/client.js";
 
@@ -101,6 +102,32 @@ describe("Xaman signing integration", function () {
     );
     assert.equal(request.uuid, "22222222-2222-4222-8222-222222222222");
     assert.equal("apiSecret" in request, false);
+  });
+
+  it("verifies backend credentials without exposing them", async function () {
+    let observedHeaders: Headers | undefined;
+    const result = await pingXaman({
+      credentials: {
+        apiKey: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        apiSecret: "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      },
+      fetchImpl: async (_url, init) => {
+        observedHeaders = new Headers(init?.headers);
+        return Response.json({
+          auth: {
+            application: { name: "MintShield", disabled: false },
+          },
+        });
+      },
+    });
+
+    assert.equal(result.authenticated, true);
+    assert.equal(result.applicationName, "MintShield");
+    assert.equal(
+      observedHeaders?.get("x-api-secret"),
+      "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+    );
+    assert.equal(JSON.stringify(result).includes("bbbbbbbb"), false);
   });
 
   it("redacts signed blobs and requires signer, Testnet and txid checks", function () {
