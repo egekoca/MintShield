@@ -166,6 +166,7 @@ try {
     router: getAddress(input.router),
     personalAccount,
     nonce: smartAccountNonce,
+    xrplSourceAccount: xrplWallet.address,
     coreVaultAddress: settings.coreVaultXrplAddress,
     paymentAmountDrops: quote.paymentAmountUBA,
     callValue: instruction.totalCallValue,

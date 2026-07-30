@@ -173,6 +173,7 @@ try {
     router: getAddress(deployment.contracts.vault.address),
     personalAccount,
     nonce: smartAccountNonce,
+    xrplSourceAccount: xrplWallet.address,
     coreVaultAddress: settings.coreVaultXrplAddress,
     paymentAmountDrops: quote.paymentAmountUBA,
     callValue: instruction.totalCallValue,

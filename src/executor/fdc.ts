@@ -322,6 +322,11 @@ export function validateXrpPaymentProof(input: {
   proof: XrpPaymentProof;
   transactionId: string;
   proofOwner: Address;
+  expectedPayment?: {
+    sourceAddress: string;
+    receivedAmount: bigint;
+    memoData: Hex;
+  };
 }) {
   const transactionId = normalizeXrplTransactionId(input.transactionId);
   if (
@@ -343,6 +348,30 @@ export function validateXrpPaymentProof(input: {
   }
   if (input.proof.data.responseBody.receivedAmount <= 0n) {
     throw new Error("XRPL payment proof has no positive received amount");
+  }
+  if (input.expectedPayment !== undefined) {
+    const response = input.proof.data.responseBody;
+    if (response.sourceAddress !== input.expectedPayment.sourceAddress) {
+      throw new Error("FDC proof source address does not match the intent");
+    }
+    if (response.receivedAmount !== input.expectedPayment.receivedAmount) {
+      throw new Error("FDC proof received amount does not match the intent");
+    }
+    const actualMemo = response.firstMemoData
+      .replace(/^0x/i, "")
+      .toLowerCase();
+    const expectedMemo = input.expectedPayment.memoData
+      .slice(2)
+      .toLowerCase();
+    if (
+      response.hasMemoData !== true ||
+      actualMemo !== expectedMemo
+    ) {
+      throw new Error("FDC proof memo does not match the 0xFE commitment");
+    }
+    if (response.hasDestinationTag === true) {
+      throw new Error("FDC proof contains a forbidden DestinationTag");
+    }
   }
   return input.proof;
 }

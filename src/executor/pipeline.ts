@@ -29,6 +29,7 @@ import {
   findValidatedXrplTransaction,
   prepareAndSignCoreVaultPayment,
   submitSignedXrplPayment,
+  validateCoreVaultPayment,
   waitForXrplFinality,
 } from "./xrpl.js";
 
@@ -36,6 +37,7 @@ type PipelineMetadata = {
   router: Address;
   personalAccount: Address;
   nonce: string;
+  xrplSourceAccount: string;
   coreVaultAddress: string;
   paymentAmountDrops: string;
   memoData: Hex;
@@ -56,6 +58,7 @@ export type ProtectedMintJobInput = {
   router: Address;
   personalAccount: Address;
   nonce: bigint;
+  xrplSourceAccount: string;
   coreVaultAddress: string;
   paymentAmountDrops: bigint;
   callValue?: bigint;
@@ -83,6 +86,7 @@ function metadata(job: ExecutorJob): PipelineMetadata {
     typeof value.router !== "string" ||
     typeof value.personalAccount !== "string" ||
     typeof value.nonce !== "string" ||
+    typeof value.xrplSourceAccount !== "string" ||
     typeof value.coreVaultAddress !== "string" ||
     typeof value.paymentAmountDrops !== "string" ||
     typeof value.memoData !== "string" ||
@@ -117,6 +121,59 @@ function toErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
 }
 
+export function createProtectedMintJob(
+  store: ExecutorStateStore,
+  input: ProtectedMintJobInput,
+) {
+  if (input.paymentAmountDrops <= 0n) {
+    throw new RangeError("paymentAmountDrops must be positive");
+  }
+  if (keccak256(input.userOpData) !== input.userOpHash) {
+    throw new Error("userOpHash does not commit to userOpData");
+  }
+  if (
+    input.allowFlareRevert === true &&
+    (input.jobKind !== "BARE_REVERT_COMPARISON" ||
+      input.flareGasLimit === undefined ||
+      input.flareGasLimit <= 0n)
+  ) {
+    throw new Error(
+      "Reverting Flare broadcasts are allowed only for a bare comparison with an explicit gas limit",
+    );
+  }
+  if (
+    input.memoData.length !== 86 ||
+    input.memoData.slice(0, 4).toLowerCase() !== "0xfe" ||
+    `0x${input.memoData.slice(-64)}`.toLowerCase() !==
+      input.userOpHash.toLowerCase()
+  ) {
+    throw new Error("0xFE memo does not commit to userOpHash");
+  }
+  return store.createOrGet({
+    intentKey: input.intentKey,
+    userOpHash: input.userOpHash,
+    userOpData: input.userOpData,
+    metadata: {
+      router: getAddress(input.router),
+      personalAccount: getAddress(input.personalAccount),
+      nonce: input.nonce.toString(),
+      xrplSourceAccount: input.xrplSourceAccount,
+      coreVaultAddress: input.coreVaultAddress,
+      paymentAmountDrops: input.paymentAmountDrops.toString(),
+      memoData: input.memoData,
+      callValue: (input.callValue ?? 0n).toString(),
+      jobKind: input.jobKind ?? "PROTECTED",
+      allowFlareRevert: input.allowFlareRevert ?? false,
+      ...(input.flareGasLimit === undefined
+        ? {}
+        : { flareGasLimit: input.flareGasLimit.toString() }),
+      ...(input.expectedIntentId === undefined
+        ? {}
+        : { expectedIntentId: input.expectedIntentId }),
+    },
+  });
+}
+
 export class MintShieldExecutorPipeline {
   readonly #dependencies: ExecutorPipelineDependencies;
 
@@ -125,52 +182,7 @@ export class MintShieldExecutorPipeline {
   }
 
   createJob(input: ProtectedMintJobInput) {
-    if (input.paymentAmountDrops <= 0n) {
-      throw new RangeError("paymentAmountDrops must be positive");
-    }
-    if (keccak256(input.userOpData) !== input.userOpHash) {
-      throw new Error("userOpHash does not commit to userOpData");
-    }
-    if (
-      input.allowFlareRevert === true &&
-      (input.jobKind !== "BARE_REVERT_COMPARISON" ||
-        input.flareGasLimit === undefined ||
-        input.flareGasLimit <= 0n)
-    ) {
-      throw new Error(
-        "Reverting Flare broadcasts are allowed only for a bare comparison with an explicit gas limit",
-      );
-    }
-    if (
-      input.memoData.length !== 86 ||
-      input.memoData.slice(0, 4).toLowerCase() !== "0xfe" ||
-      `0x${input.memoData.slice(-64)}`.toLowerCase() !==
-        input.userOpHash.toLowerCase()
-    ) {
-      throw new Error("0xFE memo does not commit to userOpHash");
-    }
-    return this.#dependencies.store.createOrGet({
-      intentKey: input.intentKey,
-      userOpHash: input.userOpHash,
-      userOpData: input.userOpData,
-      metadata: {
-        router: getAddress(input.router),
-        personalAccount: getAddress(input.personalAccount),
-        nonce: input.nonce.toString(),
-        coreVaultAddress: input.coreVaultAddress,
-        paymentAmountDrops: input.paymentAmountDrops.toString(),
-        memoData: input.memoData,
-        callValue: (input.callValue ?? 0n).toString(),
-        jobKind: input.jobKind ?? "PROTECTED",
-        allowFlareRevert: input.allowFlareRevert ?? false,
-        ...(input.flareGasLimit === undefined
-          ? {}
-          : { flareGasLimit: input.flareGasLimit.toString() }),
-        ...(input.expectedIntentId === undefined
-          ? {}
-          : { expectedIntentId: input.expectedIntentId }),
-      },
-    });
+    return createProtectedMintJob(this.#dependencies.store, input);
   }
 
   async run(
@@ -213,6 +225,11 @@ export class MintShieldExecutorPipeline {
               "An XRPL wallet is required only for the CREATED -> XRPL_SIGNED step",
             );
           }
+          if (options.xrplWallet.address !== details.xrplSourceAccount) {
+            throw new Error(
+              "XRPL signing wallet does not match the job source account",
+            );
+          }
           const signed = await prepareAndSignCoreVaultPayment({
             client: this.#dependencies.xrplClient,
             wallet: options.xrplWallet,
@@ -228,14 +245,14 @@ export class MintShieldExecutorPipeline {
         }
 
         if (job.status === "XRPL_SIGNED") {
-          if (job.xrplTxHash === undefined || details.txBlob === undefined) {
-            throw new Error("XRPL_SIGNED job is missing tx hash or signed blob");
+          if (job.xrplTxHash === undefined) {
+            throw new Error("XRPL_SIGNED job is missing its transaction hash");
           }
           const existing = await findValidatedXrplTransaction({
             client: this.#dependencies.xrplClient,
             transactionId: job.xrplTxHash,
           });
-          if (existing === undefined) {
+          if (existing === undefined && details.txBlob !== undefined) {
             const submitted = await submitSignedXrplPayment({
               client: this.#dependencies.xrplClient,
               txBlob: details.txBlob,
@@ -250,6 +267,22 @@ export class MintShieldExecutorPipeline {
             client: this.#dependencies.xrplClient,
             transactionId: job.xrplTxHash,
             signal: options.signal,
+          });
+          const validatedTransaction = await findValidatedXrplTransaction({
+            client: this.#dependencies.xrplClient,
+            transactionId: job.xrplTxHash,
+          });
+          if (validatedTransaction === undefined) {
+            throw new Error(
+              "XRPL transaction disappeared after reaching finality",
+            );
+          }
+          validateCoreVaultPayment(validatedTransaction, {
+            transactionId: job.xrplTxHash,
+            sourceAccount: details.xrplSourceAccount,
+            destination: details.coreVaultAddress,
+            amountDrops: BigInt(details.paymentAmountDrops),
+            memoData: details.memoData,
           });
           this.#dependencies.store.transition(job.id, "XRPL_FINALIZED", {
             metadata: {
@@ -326,6 +359,11 @@ export class MintShieldExecutorPipeline {
             proof,
             transactionId: job.xrplTxHash!,
             proofOwner: this.#dependencies.account.address,
+            expectedPayment: {
+              sourceAddress: details.xrplSourceAccount,
+              receivedAmount: BigInt(details.paymentAmountDrops),
+              memoData: details.memoData,
+            },
           });
           this.#dependencies.store.transition(job.id, "PROOF_READY");
           continue;
@@ -387,6 +425,11 @@ export class MintShieldExecutorPipeline {
       proof,
       transactionId: job.xrplTxHash,
       proofOwner: this.#dependencies.account.address,
+      expectedPayment: {
+        sourceAddress: details.xrplSourceAccount,
+        receivedAmount: BigInt(details.paymentAmountDrops),
+        memoData: details.memoData,
+      },
     });
     const submitted = await submitDirectMintWithData({
       publicClient: this.#dependencies.publicClient,

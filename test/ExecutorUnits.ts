@@ -7,11 +7,30 @@ import {
   memoFromHex,
   normalizeXrplTransactionId,
   toXrplTransactionHash,
+  validateCoreVaultPayment,
 } from "../src/executor/xrpl.js";
 
 const transactionId = `0x${"11".repeat(32)}` as Hex;
 const proofOwner =
   "0x2222222222222222222222222222222222222222" as Address;
+const memoData = `0x${"fe00"}${"00".repeat(8)}${"11".repeat(32)}` as Hex;
+
+function validTransaction(): Record<string, unknown> {
+  return {
+    validated: true,
+    hash: transactionId.slice(2).toUpperCase(),
+    ledger_index: 123,
+    TransactionType: "Payment",
+    Account: "rExpectedSource",
+    Destination: "rExpectedCoreVault",
+    Amount: "1100000",
+    Memos: [{ Memo: { MemoData: memoData.slice(2).toUpperCase() } }],
+    meta: {
+      TransactionResult: "tesSUCCESS",
+      delivered_amount: "1100000",
+    },
+  };
+}
 
 function validProof(): XrpPaymentProof {
   return {
@@ -60,7 +79,16 @@ describe("executor boundary validation", () => {
   it("accepts only a successful, owned, matching XRPPayment proof", () => {
     const proof = validProof();
     assert.equal(
-      validateXrpPaymentProof({ proof, transactionId, proofOwner }),
+      validateXrpPaymentProof({
+        proof,
+        transactionId,
+        proofOwner,
+        expectedPayment: {
+          sourceAddress: "rSource",
+          receivedAmount: 1_000_000n,
+          memoData: "0xfe00",
+        },
+      }),
       proof,
     );
 
@@ -83,6 +111,67 @@ describe("executor boundary validation", () => {
           proofOwner,
         }),
       /transactionId/,
+    );
+
+    const wrongMemo = validProof();
+    wrongMemo.data.responseBody.firstMemoData = "0xfe01";
+    assert.throws(
+      () =>
+        validateXrpPaymentProof({
+          proof: wrongMemo,
+          transactionId,
+          proofOwner,
+          expectedPayment: {
+            sourceAddress: "rSource",
+            receivedAmount: 1_000_000n,
+            memoData: "0xfe00",
+          },
+        }),
+      /memo/,
+    );
+  });
+
+  it("accepts only the exact validated Core Vault payment", () => {
+    const expected = {
+      transactionId,
+      sourceAccount: "rExpectedSource",
+      destination: "rExpectedCoreVault",
+      amountDrops: 1_100_000n,
+      memoData,
+    };
+    const validated = validateCoreVaultPayment(
+      validTransaction(),
+      expected,
+    );
+    assert.equal(validated.transactionId, transactionId);
+    assert.equal(validated.memoData, memoData);
+
+    for (const [field, value, message] of [
+      ["Destination", "rAttacker", /Core Vault/],
+      ["Amount", "1099999", /amount/],
+      ["Account", "rWrongSigner", /source account/],
+      ["DestinationTag", 7, /DestinationTag/],
+      ["Memos", [], /exactly one memo/],
+    ] as const) {
+      const transaction = validTransaction();
+      transaction[field] = value;
+      assert.throws(
+        () => validateCoreVaultPayment(transaction, expected),
+        message,
+      );
+    }
+
+    const partial = validTransaction();
+    partial.Flags = 0x0002_0000;
+    assert.throws(
+      () => validateCoreVaultPayment(partial, expected),
+      /Partial-payment/,
+    );
+    const wrongMemo = validTransaction();
+    wrongMemo.Memos = [{ Memo: { MemoData: "FE00" } }];
+    assert.throws(
+      () => validateCoreVaultPayment(wrongMemo, expected),
+      /0xFE commitment/,
     );
   });
 });
