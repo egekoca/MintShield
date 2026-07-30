@@ -1,0 +1,43 @@
+{
+  "observedAt": "2026-07-30T00:52:37.459Z",
+  "chainId": 114,
+  "jobId": "85964530-3924-4663-a538-8dc40fc44455",
+  "status": "RECOVERED",
+  "personalAccount": "0x0cFc5185A137CE38e1D927B34015799A834b429D",
+  "nonce": "3",
+  "original": {
+    "xrplTxHash": "0xd5fac7b9f288c7f7781d4f7a281c56dbcbb07f21ed622a89b6102bd72aa77a11",
+    "fdcVotingRound": 1410470,
+    "revertedFlareTxHash": "0xdb6767f3ea3c849a4ab07399ec1b9e1bcca592c67a9a3dd560ac053766913c37"
+  },
+  "recoveryFlag": {
+    "xrplTxHash": "0x69ba9dafd3894948d14d8fe8598cddce685d238bbd3c0818f06fdc1f8e29aa3a",
+    "fdcVotingRound": 1410472,
+    "flareTxHash": "0xeadde4a7b5d03005e56beb65bd5a62af3a2763d7aa1e2149b8317ae676f01751",
+    "amount": "1000000",
+    "executorFee": "0"
+  },
+  "stuckRetry": {
+    "flareTxHash": "0x078b8e189dca4907e67d71efc02c004e54dee643bcab42c5cdfd7924021c4290",
+    "amount": "1000000",
+    "executorFee": "100000"
+  },
+  "balances": {
+    "before": "2000000",
+    "after": "3900000",
+    "expectedDelta": "1900000",
+    "observedDelta": "1900000"
+  },
+  "checks": {
+    "jobRecovered": true,
+    "originalFlareFinalizationReverted": true,
+    "recoveryMemoChargedSignedZeroFee": true,
+    "ignoredMemoUsedDefaultExecutorFee": true,
+    "recoveryBalanceDeltaMatchesEvents": true,
+    "currentBalanceMatchesCheckpoint": true,
+    "stuckTransactionConsumed": true,
+    "skippedUserOpDidNotAdvanceNonce": true
+  },
+  "passed": true,
+  "failed": []
+}

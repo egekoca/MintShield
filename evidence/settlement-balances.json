@@ -1,0 +1,36 @@
+{
+  "observedAt": "2026-07-30T00:53:58.852Z",
+  "chainId": 114,
+  "personalAccount": "0x0cFc5185A137CE38e1D927B34015799A834b429D",
+  "nonce": "3",
+  "balancesUBA": {
+    "personalAccountFxrp": "3900000",
+    "personalAccountShares": "1000000",
+    "vaultFxrp": "1000000",
+    "vaultShareSupply": "1000000",
+    "routerFxrp": "0",
+    "adapterFxrp": "0"
+  },
+  "allowancesUBA": {
+    "personalAccountToRouter": "0",
+    "routerToAdapter": "0",
+    "adapterToVault": "0"
+  },
+  "vaultMode": 0,
+  "checks": {
+    "chainIsCoston2": true,
+    "smartAccountNonceAdvancedThreeTimes": true,
+    "protectedAndRecoveredFxrpMatches": true,
+    "successfulDepositMintedExactShares": true,
+    "vaultReceivedExactFxrp": true,
+    "shareSupplyMatchesDeposit": true,
+    "routerHasNoResidualFxrp": true,
+    "adapterHasNoResidualFxrp": true,
+    "personalAccountAllowanceConsumed": true,
+    "routerAllowanceCleared": true,
+    "adapterAllowanceCleared": true,
+    "vaultWasInSuccessMode": true
+  },
+  "passed": true,
+  "failed": []
+}

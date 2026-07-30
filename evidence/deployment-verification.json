@@ -1,0 +1,27 @@
+{
+  "observedAt": "2026-07-30T00:21:39.961Z",
+  "chainId": 114,
+  "checks": {
+    "chainId": true,
+    "allContractsDeployed": true,
+    "routerOwner": true,
+    "registryOwner": true,
+    "routerRegistry": true,
+    "routerAsset": true,
+    "minimumExecutionGas": true,
+    "adapterGasLimit": true,
+    "adapterRouter": true,
+    "adapterAsset": true,
+    "adapterVault": true,
+    "vaultAsset": true,
+    "targetCodeHash": true,
+    "registryImplementation": true,
+    "registryAsset": true,
+    "registryCodeHash": true,
+    "registryMaxAmount": true,
+    "registryVersion": true,
+    "registryEnabled": true
+  },
+  "passed": true,
+  "failed": []
+}

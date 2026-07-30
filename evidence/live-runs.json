@@ -1,0 +1,117 @@
+{
+  "evidenceVersion": 2,
+  "exportedAt": "2026-07-30T00:35:13.832Z",
+  "chainId": 114,
+  "summary": {
+    "total": 3,
+    "active": 0,
+    "attention": 0,
+    "byStatus": {
+      "SETTLED_FALLBACK": 2,
+      "SETTLED_SUCCESS": 1
+    }
+  },
+  "jobs": [
+    {
+      "id": "50678265-6462-428c-8b0c-26257b557586",
+      "intentKey": "0x0cfc5185a137ce38e1d927b34015799a834b429d:0",
+      "status": "SETTLED_FALLBACK",
+      "userOpHash": "0xe1934a86656f5b34520acb2d9d975552ab59740b8c4ddabc57e393de83bd85e0",
+      "xrplTxHash": "0xee6fe5247f6c4f7d5981c436bf3a363266c9bb3e7bf0143a6c7cb8419c14dff5",
+      "votingRound": 1410449,
+      "flareTxHash": "0x62be9e984b27d29a8d469374301b90eef60b8dec7a119e729d352e892f554b9b",
+      "details": {
+        "router": "0xC085D208fb9cd085EbcC8f4fC67fF6Ca63748CdF",
+        "personalAccount": "0x0cFc5185A137CE38e1D927B34015799A834b429D",
+        "nonce": "0",
+        "coreVaultAddress": "rDhpmiPq4BVBDWMVdSrmkgt8thKyRzGV1p",
+        "paymentAmountDrops": "1100000",
+        "memoData": "0xfe000000000000000000e1934a86656f5b34520acb2d9d975552ab59740b8c4ddabc57e393de83bd85e0",
+        "callValue": "0",
+        "expectedIntentId": "0xd2cdc41cf143ce2167b0a4c8fa855d735cb87238e99410aaffd89e9c26513043",
+        "xrplLedgerIndex": 19476248,
+        "xrplValidatedLedgerIndex": 19476250,
+        "xrplConfirmations": 3,
+        "fdcTxHash": "0x54c348fb783495c32d0d55a8ab4298283ad819f85c4687d1358bd75fc7d19530",
+        "settledIntentId": "0xd2cdc41cf143ce2167b0a4c8fa855d735cb87238e99410aaffd89e9c26513043",
+        "returnedAmount": "1000000",
+        "failureCode": 5,
+        "revertDataHash": "0xec0d0cab63b9e2d263a2102473d5946daed422f902f15cbf9ba9d8de47e4579a"
+      },
+      "links": {
+        "xrpl": "https://testnet.xrpl.org/transactions/EE6FE5247F6C4F7D5981C436BF3A363266C9BB3E7BF0143A6C7CB8419C14DFF5",
+        "flare": "https://coston2-explorer.flare.network/tx/0x62be9e984b27d29a8d469374301b90eef60b8dec7a119e729d352e892f554b9b",
+        "fdc": "https://coston2-systems-explorer.flare.network/voting-round/1410449?tab=fdc"
+      },
+      "createdAt": "2026-07-30T00:14:12.922Z",
+      "updatedAt": "2026-07-30T00:16:13.670Z"
+    },
+    {
+      "id": "5295768f-b0d3-474a-8a2a-25f43b296217",
+      "intentKey": "0x0cfc5185a137ce38e1d927b34015799a834b429d:1",
+      "status": "SETTLED_SUCCESS",
+      "userOpHash": "0x74e7f0c0a411603326c69c6eeabcb3842d884e2512de11a3828e936c03f2b47b",
+      "xrplTxHash": "0x9e32179c62624d57272d02a5877ebba08d3cb62f303826a37f1ac406a3c70db5",
+      "votingRound": 1410454,
+      "flareTxHash": "0x3ff86c9102e5aff6d45c02efcfeec2df5bfa9139065dcde7911d7ea84986be40",
+      "details": {
+        "router": "0x65CB77AD23022C03CEc15c6EEFf01c7dea056DF8",
+        "personalAccount": "0x0cFc5185A137CE38e1D927B34015799A834b429D",
+        "nonce": "1",
+        "coreVaultAddress": "rDhpmiPq4BVBDWMVdSrmkgt8thKyRzGV1p",
+        "paymentAmountDrops": "1100000",
+        "memoData": "0xfe00000000000000000074e7f0c0a411603326c69c6eeabcb3842d884e2512de11a3828e936c03f2b47b",
+        "callValue": "0",
+        "expectedIntentId": "0x89b9611eb61eaef98bb76f4dd39b3e84d976779663a021641cb037d296cfeb6a",
+        "xrplLedgerIndex": 19476400,
+        "xrplValidatedLedgerIndex": 19476402,
+        "xrplConfirmations": 3,
+        "fdcTxHash": "0xd7f245179931dbe4a2c6fcf52848e28063e7752196baf20f1a99fee28da741b4",
+        "settledIntentId": "0x89b9611eb61eaef98bb76f4dd39b3e84d976779663a021641cb037d296cfeb6a",
+        "amountIn": "1000000",
+        "amountOut": "1000000"
+      },
+      "links": {
+        "xrpl": "https://testnet.xrpl.org/transactions/9E32179C62624D57272D02A5877EBBA08D3CB62F303826A37F1AC406A3C70DB5",
+        "flare": "https://coston2-explorer.flare.network/tx/0x3ff86c9102e5aff6d45c02efcfeec2df5bfa9139065dcde7911d7ea84986be40",
+        "fdc": "https://coston2-systems-explorer.flare.network/voting-round/1410454?tab=fdc"
+      },
+      "createdAt": "2026-07-30T00:22:07.462Z",
+      "updatedAt": "2026-07-30T00:23:53.858Z"
+    },
+    {
+      "id": "351335b1-43c3-44be-9e23-d777c12c78db",
+      "intentKey": "0x0cfc5185a137ce38e1d927b34015799a834b429d:2",
+      "status": "SETTLED_FALLBACK",
+      "userOpHash": "0x35364dcbc683fc41c79b461de73bc46029cd0f8fc41791e8eaa466524e3633d9",
+      "xrplTxHash": "0x3faceacac1a754e52955381ce7abf57064a624f8a80b55c4df43244c4d340fe1",
+      "votingRound": 1410461,
+      "flareTxHash": "0xcec72e773b02b7139b7155355c58f2b5dd4c83909e4abb33301c7db8cdcc3889",
+      "details": {
+        "router": "0x65CB77AD23022C03CEc15c6EEFf01c7dea056DF8",
+        "personalAccount": "0x0cFc5185A137CE38e1D927B34015799A834b429D",
+        "nonce": "2",
+        "coreVaultAddress": "rDhpmiPq4BVBDWMVdSrmkgt8thKyRzGV1p",
+        "paymentAmountDrops": "1100000",
+        "memoData": "0xfe00000000000000000035364dcbc683fc41c79b461de73bc46029cd0f8fc41791e8eaa466524e3633d9",
+        "callValue": "0",
+        "expectedIntentId": "0x322b4a4e4b7743edad242dd928dcd841f14a69de858331c54ee63112382a7cd8",
+        "xrplLedgerIndex": 19476581,
+        "xrplValidatedLedgerIndex": 19476583,
+        "xrplConfirmations": 3,
+        "fdcTxHash": "0xb1794490a1c39acfdf278c8940ea8fc3ecd7f94026091073e735657493574100",
+        "settledIntentId": "0x322b4a4e4b7743edad242dd928dcd841f14a69de858331c54ee63112382a7cd8",
+        "returnedAmount": "1000000",
+        "failureCode": 5,
+        "revertDataHash": "0x48bdc20644ffa207b0721b93e21ac272ebe7d504872424e62d82767d1148dca2"
+      },
+      "links": {
+        "xrpl": "https://testnet.xrpl.org/transactions/3FACEACAC1A754E52955381CE7ABF57064A624F8A80B55C4DF43244C4D340FE1",
+        "flare": "https://coston2-explorer.flare.network/tx/0xcec72e773b02b7139b7155355c58f2b5dd4c83909e4abb33301c7db8cdcc3889",
+        "fdc": "https://coston2-systems-explorer.flare.network/voting-round/1410461?tab=fdc"
+      },
+      "createdAt": "2026-07-30T00:31:27.821Z",
+      "updatedAt": "2026-07-30T00:34:09.651Z"
+    }
+  ]
+}
