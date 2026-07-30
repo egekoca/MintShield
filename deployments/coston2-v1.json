@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "network": "Flare Testnet Coston2",
+  "chainId": 114,
+  "observedAt": "2026-07-30T00:08:04.075Z",
+  "deployer": "0x50E56F41681cC0589432eF8465CF4614eD99B3D8",
+  "fxrp": "0x0b6A3645c240605887a5532109323A3E12273dc7",
+  "adapterId": "0x5de83b0053ef109f55126082434a25e510701e2afa1227f99c54c615f118a135",
+  "maxAmountUBA": "100000000",
+  "compiler": {
+    "version": "0.8.27",
+    "evmVersion": "cancun",
+    "optimizerRuns": 1000,
+    "viaIR": true
+  },
+  "gasPolicy": {
+    "minimumExecutionGas": "500000",
+    "adapterGasLimit": "300000",
+    "fallbackGasReserve": "120000"
+  },
+  "contracts": {
+    "registry": {
+      "address": "0x0b8013EfE2d5c7B5be3b484ba0A275b71D719b17",
+      "deploymentTxHash": "0x62eba618056ec428c09fa8dc4e9da19dbfe44bac064ef373d45991566fd7118e",
+      "creationBytecodeHash": "0xdb410b101c327716308f11e68ff98d9d7cfb2d223a2a751013c6077c2fd28f9d"
+    },
+    "vault": {
+      "address": "0xcB8E7C851102D4894532CbDC9cDA3C59DB3658c0",
+      "deploymentTxHash": "0xdb0bd5f7f19ef4ed8f8c422259914a9f97b5a61e7c81846c35fbffc5686a9bdd",
+      "creationBytecodeHash": "0x311c1048309aded574e0f8c94851036d05bb966acd1ba5d81a011c56ad393789"
+    },
+    "router": {
+      "address": "0xC085D208fb9cd085EbcC8f4fC67fF6Ca63748CdF",
+      "deploymentTxHash": "0x295dc7c29fd7a8216363c0ece2b5e50976638d6bc2d304de15adbc8b8fe8a904",
+      "creationBytecodeHash": "0xa8f1848aa800ec7b130b7a501d50e679a16f9ec06ca09c300e61afd553cc77ba"
+    },
+    "adapter": {
+      "address": "0xd5940F27A6EA6207c22E125033c861a7931C50e8",
+      "deploymentTxHash": "0xeed0ac51ebb907a3bc17bffe4fb812c4fbc2533548eedafe45c8d788ef2934e8",
+      "creationBytecodeHash": "0x0f11c6d68465fcbbac035ddd55afdd7f16438732ac3f3841fdff3079633fd9bd",
+      "runtimeCodeHash": "0x13ef3e3c3030a782f77f19a52d36abd79c732dd822346dbbb8b34f193a7ad23d"
+    }
+  },
+  "configuration": {
+    "transactionHash": "0xf04298fdfcc11a9725e02be92f021f8cccbc5a9cfd68e108c0ac4a00b6c05032",
+    "adapterVersion": 1,
+    "enabled": true
+  },
+  "supersededBy": "deployments/coston2.json",
+  "liveResult": {
+    "status": "SETTLED_FALLBACK",
+    "failureCode": 5,
+    "reason": "Live trace showed the vault deposit ran out of gas under the original floor and cap.",
+    "xrplTransactionHash": "0xee6fe5247f6c4f7d5981c436bf3a363266c9bb3e7bf0143a6c7cb8419c14dff5",
+    "flareTransactionHash": "0x62be9e984b27d29a8d469374301b90eef60b8dec7a119e729d352e892f554b9b"
+  }
+}
