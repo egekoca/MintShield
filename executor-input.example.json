@@ -1,0 +1,9 @@
+{
+  "router": "0x65CB77AD23022C03CEc15c6EEFf01c7dea056DF8",
+  "adapterId": "0x5de83b0053ef109f55126082434a25e510701e2afa1227f99c54c615f118a135",
+  "inputAmountUBA": "1000000",
+  "minOutput": "1000000",
+  "adapterData": "0x",
+  "executorFeeUBA": "0",
+  "walletId": 0
+}
