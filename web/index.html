@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MintShield — FXRP direct mint işlemleri için failure-isolated execution katmanı."
+    />
+    <title>MintShield · Protected FXRP Execution</title>
+    <link rel="icon" href="/assets/mintshield-icon.png" type="image/png" />
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <header class="topbar shell">
+      <a class="brand" href="/" aria-label="MintShield ana sayfa">
+        <span class="brand-mark brand-mark-image" aria-hidden="true">
+          <img src="/assets/mintshield-icon.png" alt="" />
+        </span>
+        <span>
+          <strong>MintShield</strong>
+          <small>Failure-isolated execution</small>
+        </span>
+      </a>
+
+      <div class="topbar-actions">
+        <div class="language-switch" role="group" aria-label="Language">
+          <button type="button" class="language-option active" data-lang="tr">
+            TR
+          </button>
+          <button type="button" class="language-option" data-lang="en">
+            EN
+          </button>
+        </div>
+        <div class="network-pill" title="Flare Coston2 testnet">
+          <span class="pulse-dot"></span>
+          <span>Coston2</span>
+          <span class="network-id">114</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">
+            <span></span>
+            <b data-i18n="heroEyebrow">Flare Smart Accounts için güvenlik katmanı</b>
+          </div>
+          <h1>
+            <span data-i18n="heroTitle">İşlem başarısız olsa</span><br />
+            <em data-i18n="heroAccent">da FXRP güvende kalır.</em>
+          </h1>
+          <p data-i18n="heroBody">
+            MintShield, direct mint sonrasındaki DeFi çağrısını izole eder.
+            Desteklenen işlem ya zincir üzerinde tamamlanır ya da FXRP aynı
+            user operation içinde Personal Account’a geri döner.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#protect">
+              <span data-i18n="planAction">Korumalı işlemi planla</span>
+              <span aria-hidden="true">↘</span>
+            </a>
+            <a
+              class="button secondary"
+              href="https://dev.flare.network/smart-accounts/overview"
+              target="_blank"
+              rel="noreferrer"
+            >
+              <span>Flare Smart Accounts</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="protection-card">
+          <div class="card-glow"></div>
+          <div class="protection-head">
+            <span data-i18n="protectionPrinciple">Koruma ilkesi</span>
+            <span class="live-chip"><i></i> LIVE</span>
+          </div>
+          <div class="shield-orbit">
+            <div class="orbit orbit-a"></div>
+            <div class="orbit orbit-b"></div>
+            <div class="hero-shield">
+              <img src="/assets/mintshield-icon.png" alt="" />
+            </div>
+          </div>
+          <div class="invariant">
+            <span class="mono">action.success</span>
+            <span class="or" data-i18n="or">veya</span>
+            <span class="mono accent">exact FXRP return</span>
+          </div>
+          <div class="protection-foot">
+            <span data-i18n="routerResidual">Router bakiyesi</span>
+            <strong>0 FXRP</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Canlı ağ özeti">
+        <article>
+          <span class="metric-icon success">✓</span>
+          <div>
+            <small data-i18n="protectedSettlements">Korumalı sonuçlar</small>
+            <strong id="settled-count">—</strong>
+          </div>
+          <span class="metric-note" data-i18n="onChain">zincir üstü</span>
+        </article>
+        <article>
+          <span class="metric-icon fallback">↩</span>
+          <div>
+            <small data-i18n="exactFallbacks">Exact fallback</small>
+            <strong id="fallback-count">—</strong>
+          </div>
+          <span class="metric-note" data-i18n="zeroLoss">0 kayıp</span>
+        </article>
+        <article>
+          <span class="metric-icon recovery">⌁</span>
+          <div>
+            <small data-i18n="recoveryFlows">Kurtarma akışları</small>
+            <strong id="recovery-count">—</strong>
+          </div>
+          <span class="metric-note" data-i18n="proven">kanıtlı</span>
+        </article>
+        <article>
+          <span class="metric-icon neutral">◇</span>
+          <div>
+            <small data-i18n="activeJobs">Aktif işler</small>
+            <strong id="active-count">—</strong>
+          </div>
+          <span class="metric-note" id="sync-label" data-i18n="connecting">bağlanıyor</span>
+        </article>
+      </section>
+
+      <section class="planner" id="protect">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow"><span></span><b data-i18n="reviewEyebrow">Anladığın işlemi imzala</b></div>
+            <h2 data-i18n="reviewTitle">İmzadan önce her alanı gör.</h2>
+          </div>
+          <p data-i18n="reviewBody">
+            Bu ekran Coston2’den güncel fee ve nonce değerlerini salt-okunur
+            olarak çeker. Seed veya private key istemez; yalnızca imzalanacak
+            intent’in insan tarafından okunabilir ön izlemesini üretir.
+          </p>
+        </div>
+
+        <div class="planner-grid">
+          <form id="preview-form" class="deposit-form">
+            <div class="form-head">
+              <span class="step-number">01</span>
+              <div>
+                <strong data-i18n="protectedDeposit">Korumalı deposit</strong>
+                <small>FailureVault · ERC-4626 adapter v2</small>
+              </div>
+            </div>
+
+            <label class="field full">
+              <span data-i18n="xrplAccount">XRPL Testnet hesabı</span>
+              <input
+                name="xrplAddress"
+                value="rUYvHdCmkdVZMEqqa43bxX3gQEc7BSWxb8"
+                autocomplete="off"
+                spellcheck="false"
+                required
+              />
+              <small data-i18n="xrplAccountHint">Yalnızca public classic address; seed asla girilmez.</small>
+            </label>
+
+            <div class="field-row">
+              <label class="field">
+                <span data-i18n="protectedAmount">Korumalı miktar</span>
+                <div class="amount-input">
+                  <input
+                    name="amountFxrp"
+                    type="text"
+                    inputmode="decimal"
+                    value="1"
+                    required
+                  />
+                  <b>FXRP</b>
+                </div>
+              </label>
+              <label class="field">
+                <span data-i18n="minimumShares">Minimum vault share</span>
+                <div class="amount-input">
+                  <input
+                    name="minimumShares"
+                    type="text"
+                    inputmode="decimal"
+                    value="1"
+                    required
+                  />
+                  <b>msSHARE</b>
+                </div>
+              </label>
+            </div>
+
+            <div class="field-row">
+              <label class="field">
+                <span data-i18n="executorFee">Executor fee</span>
+                <div class="amount-input">
+                  <input
+                    name="executorFeeFxrp"
+                    type="text"
+                    inputmode="decimal"
+                    value="0"
+                    required
+                  />
+                  <b>FXRP</b>
+                </div>
+              </label>
+              <label class="field">
+                <span data-i18n="deadline">Son geçerlilik</span>
+                <select name="deadlineMinutes">
+                  <option value="60" data-i18n="oneHour">1 saat</option>
+                  <option value="120" selected data-i18n="twoHours">2 saat</option>
+                  <option value="360" data-i18n="sixHours">6 saat</option>
+                  <option value="1440" data-i18n="twentyFourHours">24 saat</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="safety-note">
+              <span>⌁</span>
+              <p data-i18n="safetyNote">
+                Router yalnızca girilen exact FXRP için approve edilir.
+                Desteklenen action post-condition’ı sağlamazsa miktar Personal
+                Account’a döner.
+              </p>
+            </div>
+
+            <button id="preview-submit" class="button primary form-submit" type="submit">
+              <span data-i18n="previewAction">Canlı intent ön izlemesi</span>
+              <span aria-hidden="true">→</span>
+            </button>
+          </form>
+
+          <div id="preview-panel" class="preview-panel" aria-live="polite">
+            <div class="preview-empty">
+              <span class="preview-shield">
+                <img src="/assets/mintshield-icon.png" alt="" />
+              </span>
+              <strong data-i18n="previewEmptyTitle">İmzalanacak intent burada görünecek</strong>
+              <p data-i18n="previewEmptyBody">
+                Miktarı ve XRPL public address’i kontrol edip ön izleme
+                oluştur. Hiçbir işlem gönderilmez.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="comparison">
+        <div class="section-heading">
+          <div>
+            <div class="eyebrow"><span></span><b>Failure isolation</b></div>
+            <h2 data-i18n="comparisonTitle">Aynı hata, iki farklı sonuç</h2>
+          </div>
+          <p data-i18n="comparisonBody">
+            Desteklenen action revert ettiğinde MintShield outer operation’ı
+            başarıyla kapatır. Çıplak akışta ise ikinci ödeme ve kurtarma gerekir.
+          </p>
+        </div>
+
+        <div class="comparison-grid">
+          <article class="flow protected">
+            <div class="flow-title">
+              <span class="flow-mark">M</span>
+              <div><strong data-i18n="mintshieldProtected">MintShield korumalı</strong><small data-i18n="oneSignature">Tek XRPL imzası</small></div>
+              <span class="result-chip good">Settled</span>
+            </div>
+            <ol>
+              <li class="done"><i>1</i><span data-i18n="xrplVerified">XRPL payment doğrulandı</span><b>✓</b></li>
+              <li class="done"><i>2</i><span data-i18n="fxrpMinted">FXRP mint edildi</span><b>✓</b></li>
+              <li class="failed"><i>3</i><span data-i18n="vaultReverted">Vault çağrısı revert etti</span><b>×</b></li>
+              <li class="returned"><i>4</i><span data-i18n="fxrpReturned">Exact FXRP Personal Account’a döndü</span><b>✓</b></li>
+            </ol>
+            <div class="flow-outcome">
+              <span data-i18n="userOutcome">Kullanıcı sonucu</span>
+              <strong data-i18n="fxrpRefunded">1.000000 FXRP iade</strong>
+            </div>
+          </article>
+
+          <article class="flow bare">
+            <div class="flow-title">
+              <span class="flow-mark">∅</span>
+              <div><strong data-i18n="withoutRouter">Router olmadan</strong><small>Atomic revert</small></div>
+              <span class="result-chip bad">Recovery</span>
+            </div>
+            <ol>
+              <li class="done"><i>1</i><span data-i18n="xrplVerified">XRPL payment doğrulandı</span><b>✓</b></li>
+              <li class="failed"><i>2</i><span data-i18n="userOpReverted">User operation revert etti</span><b>×</b></li>
+              <li class="attention"><i>3</i><span data-i18n="secondPayment">İkinci XRPL payment + 0xE0</span><b>!</b></li>
+              <li class="attention"><i>4</i><span data-i18n="proofRetried">Orijinal proof yeniden çalıştırıldı</span><b>!</b></li>
+            </ol>
+            <div class="flow-outcome danger">
+              <span data-i18n="userOutcome">Kullanıcı sonucu</span>
+              <strong data-i18n="extraTransactions">3 ek zincir işlemi</strong>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="operations" id="operations">
+        <div class="section-heading compact">
+          <div>
+            <div class="eyebrow"><span></span> Executor telemetry</div>
+            <h2 data-i18n="liveRecords">Canlı işlem kayıtları</h2>
+          </div>
+          <div class="filters" role="group" aria-label="İşlem filtreleri">
+            <button class="filter active" data-filter="all" data-i18n="all">Tümü</button>
+            <button class="filter" data-filter="protected">Protected</button>
+            <button class="filter" data-filter="recovery">Recovery</button>
+          </div>
+        </div>
+
+        <div class="table-shell">
+          <div class="table-head">
+            <span data-i18n="transaction">İşlem</span>
+            <span data-i18n="status">Durum</span>
+            <span>XRPL / FDC</span>
+            <span data-i18n="updated">Güncelleme</span>
+            <span></span>
+          </div>
+          <div id="jobs-list" class="jobs-list" aria-live="polite">
+            <div class="loading-row">
+              <span class="loader"></span>
+              <span data-i18n="loadingRecords">Executor kayıtları yükleniyor…</span>
+            </div>
+          </div>
+        </div>
+        <p id="error-message" class="error-message" hidden></p>
+      </section>
+
+      <section class="architecture-strip">
+        <div>
+          <small>01</small>
+          <strong>XRPL Payment</strong>
+          <span data-i18n="customInstruction">0xFE instruction</span>
+        </div>
+        <i>→</i>
+        <div>
+          <small>02</small>
+          <strong>FDC Proof</strong>
+          <span data-i18n="paymentAttestation">Payment attestation</span>
+        </div>
+        <i>→</i>
+        <div>
+          <small>03</small>
+          <strong>Direct Mint</strong>
+          <span data-i18n="smartAccountExecution">Smart Account execution</span>
+        </div>
+        <i>→</i>
+        <div class="highlight">
+          <small>04</small>
+          <strong>MintShield</strong>
+          <span data-i18n="successOrReturn">Success or exact return</span>
+        </div>
+      </section>
+    </main>
+
+    <footer class="shell">
+      <div class="footer-lockup">
+        <span class="footer-wordmark">
+          <img
+            src="/assets/mintshield-wordmark.png"
+            alt="MintShield"
+          />
+        </span>
+        <small>Flare Summer Signal · 2026</small>
+      </div>
+      <p data-i18n="footerNotice">Testnet prototipi. Bağımsız audit tamamlanmamıştır.</p>
+    </footer>
+
+    <dialog id="job-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-head">
+        <div>
+          <span class="eyebrow"><span></span> On-chain evidence</span>
+          <h2 id="dialog-title" data-i18n="transactionDetail">İşlem detayı</h2>
+        </div>
+        <button id="dialog-close" class="dialog-close" aria-label="Kapat">×</button>
+      </div>
+      <div id="dialog-body"></div>
+    </dialog>
+  </body>
+</html>
