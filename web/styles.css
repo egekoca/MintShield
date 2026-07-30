@@ -639,6 +639,19 @@ button {
   font-size: 8px;
 }
 
+.field-help {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--orange);
+  font-size: 9px;
+  text-decoration: none;
+}
+
+.field-help:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .field input,
 .field select {
   width: 100%;
