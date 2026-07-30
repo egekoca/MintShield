@@ -1,0 +1,51 @@
+{
+  "name": "mintshield",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Failure-isolated FXRP execution for Flare Smart Accounts",
+  "scripts": {
+    "build": "hardhat compile",
+    "build:production": "hardhat build --build-profile production",
+    "test": "hardhat test",
+    "test:solidity": "hardhat test solidity",
+    "test:coverage": "hardhat test --coverage",
+    "test:gas": "hardhat test test/MintShield.ts --gas-stats",
+    "typecheck": "tsc --noEmit",
+    "status:coston2": "node --env-file-if-exists=.env --import tsx scripts/coston2-status.ts",
+    "deploy:coston2:plan": "npm run build:production && node --env-file-if-exists=.env --import tsx scripts/deploy-coston2.ts",
+    "deploy:coston2": "npm run build:production && node --env-file-if-exists=.env --import tsx scripts/deploy-coston2.ts --broadcast",
+    "migrate:coston2:router:plan": "npm run build:production && node --env-file-if-exists=.env --import tsx scripts/migrate-coston2-router.ts",
+    "migrate:coston2:router": "npm run build:production && node --env-file-if-exists=.env --import tsx scripts/migrate-coston2-router.ts --broadcast",
+    "verify:coston2": "node --env-file-if-exists=.env --import tsx scripts/verify-coston2-deployment.ts",
+    "verify:settlements": "node --env-file-if-exists=.env --import tsx scripts/verify-live-settlements.ts",
+    "vault:mode": "node --env-file-if-exists=.env --import tsx scripts/set-demo-vault-mode.ts",
+    "wallet:xrpl:testnet": "node --import tsx scripts/create-xrpl-testnet-wallet.ts",
+    "wallet:coston2:executor": "node --import tsx scripts/create-coston2-executor.ts",
+    "preflight:integration": "node --env-file-if-exists=.env --import tsx scripts/integration-preflight.ts",
+    "api:status": "node --env-file-if-exists=.env --import tsx scripts/status-api.ts",
+    "executor:run": "node --env-file-if-exists=.env --import tsx scripts/run-executor.ts",
+    "comparison:bare": "node --env-file-if-exists=.env --import tsx scripts/run-bare-comparison.ts",
+    "comparison:recover": "node --env-file-if-exists=.env --import tsx scripts/recover-bare-comparison.ts",
+    "verify:bare-recovery": "node --env-file-if-exists=.env --import tsx scripts/verify-bare-recovery.ts",
+    "evidence:export": "node --env-file-if-exists=.env --import tsx scripts/export-evidence.ts",
+    "clean": "hardhat clean",
+    "check": "npm run build && npm run typecheck && hardhat test --no-compile"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@flarenetwork/smart-accounts-encoder": "0.1.2",
+    "viem": "2.55.10",
+    "xrpl": "4.6.0"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox-viem": "5.0.7",
+    "@openzeppelin/contracts": "5.6.1",
+    "@types/node": "^24.0.0",
+    "hardhat": "3.11.1",
+    "tsx": "4.23.1",
+    "typescript": "^6.0.0"
+  }
+}

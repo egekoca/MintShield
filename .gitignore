@@ -1,0 +1,12 @@
+node_modules/
+artifacts/
+cache/
+coverage/
+dist/
+.env
+deployments/local/
+data/
+*.db-shm
+*.db-wal
+*.log
+.DS_Store
