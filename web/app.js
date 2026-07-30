@@ -37,6 +37,7 @@ const translations = {
       "Bu ekran Coston2’den güncel fee ve nonce değerlerini salt-okunur olarak çeker. Seed veya private key istemez; yalnızca imzalanacak intent’in insan tarafından okunabilir ön izlemesini üretir.",
     protectedDeposit: "Korumalı deposit",
     xrplAccount: "XRPL Testnet hesabı",
+    xrplAccountPlaceholder: "Xaman Testnet public adresiniz (r…)",
     xrplAccountHint: "Yalnızca public classic address; seed asla girilmez.",
     protectedAmount: "Korumalı miktar",
     minimumShares: "Minimum vault share",
@@ -149,6 +150,7 @@ const translations = {
       "This screen reads the current fee and nonce from Coston2. It never asks for a seed or private key; it only creates a human-readable preview of the intent to be signed.",
     protectedDeposit: "Protected deposit",
     xrplAccount: "XRPL Testnet account",
+    xrplAccountPlaceholder: "Your Xaman Testnet public address (r…)",
     xrplAccountHint: "Public classic address only; never enter a seed.",
     protectedAmount: "Protected amount",
     minimumShares: "Minimum vault shares",
@@ -880,6 +882,9 @@ function applyLanguage(language) {
       : "MintShield · Protected FXRP Execution";
   for (const node of document.querySelectorAll("[data-i18n]")) {
     node.textContent = t(node.dataset.i18n);
+  }
+  for (const node of document.querySelectorAll("[data-i18n-placeholder]")) {
+    node.placeholder = t(node.dataset.i18nPlaceholder);
   }
   for (const button of document.querySelectorAll(".language-option")) {
     const active = button.dataset.lang === state.language;
