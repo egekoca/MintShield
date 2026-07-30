@@ -76,7 +76,7 @@ Hardhat default-profile measurements:
 
 | Metric | Result |
 |---|---:|
-| Tests | 66 passing |
+| Tests | 70 passing |
 | Solidity line coverage | 91.62% |
 | Solidity statement coverage | 83.21% |
 | Router `execute` gas, median | 191,494 |
@@ -98,3 +98,13 @@ a security guarantee.
   fabricating protocol-specific output unless its adapter invariants are
   independently reviewed.
 - Runtime codehash does not identify a proxy implementation upgrade.
+
+## Xaman boundary
+
+Browser signing sessions persist only the Xaman payload UUID and public
+transaction coordinates. API credentials remain backend-only and full
+user-operation bytes remain in the executor database. A Xaman `signed` status
+does not authorize FDC submission by itself: the worker re-reads the validated
+XRPL transaction and requires the exact source account, Core Vault
+destination, drops amount, delivered amount and 42-byte `0xFE` memo, with no
+DestinationTag or partial-payment flag.

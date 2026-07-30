@@ -585,6 +585,7 @@ async function verifyXamanStatus(uuid) {
       state.xamanStatus = "waiting";
     }
     renderXamanPanel();
+    if (payload.job !== undefined) loadJobs();
   } catch (cause) {
     state.xamanStatus = "mismatch";
     renderXamanPanel();

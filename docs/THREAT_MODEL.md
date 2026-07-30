@@ -54,7 +54,7 @@ human-readable intent.
 | Xaman API secret exposed to browser or logs | backend-only headers, redacted responses, git-ignored env and explicit enable gate | Host compromise can still expose process credentials |
 | Forged Xaman QR/deeplink/status URL | response host/protocol allowlist and restrictive CSP | Xaman domain or local backend compromise remains trusted |
 | WebSocket event spoofing or race | WebSocket is only a trigger; backend re-fetches authoritative payload status | Xaman API availability can delay confirmation |
-| Wrong XRPL signer or network | returned account, Testnet node type and transaction ID must all match before the UI marks verified | Final executor still has to validate payment fields and ledger finality |
+| Wrong XRPL signer, network or payment fields | Xaman account/Testnet/txid checks plus independent XRPL source, Core Vault, amount, delivered amount, memo, finality and DestinationTag validation | XRPL node and Xaman availability can delay confirmation |
 
 ## Expected non-reverting failures
 

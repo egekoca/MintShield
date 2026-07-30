@@ -119,7 +119,7 @@ function quoteView(quote: GrossMintQuote) {
   };
 }
 
-export function buildDepositPreview(input: {
+export function buildDepositPlan(input: {
   normalized: NormalizedPreviewInput;
   deployment: PreviewDeployment;
   chain: PreviewChainContext;
@@ -155,7 +155,7 @@ export function buildDepositPreview(input: {
     normalized.executorFeeUBA,
   );
 
-  return {
+  const preview = {
     network: {
       name: "Flare Testnet Coston2",
       chainId: 114,
@@ -194,4 +194,20 @@ export function buildDepositPreview(input: {
       "Testnet only. Review every field again in the external wallet.",
     ],
   };
+  return {
+    preview,
+    execution: {
+      intent,
+      userOpHash: instruction.userOpHash,
+      userOpData: instruction.data,
+      memoData: instruction.memoData,
+      totalCallValue: instruction.totalCallValue,
+    },
+  };
+}
+
+export function buildDepositPreview(
+  input: Parameters<typeof buildDepositPlan>[0],
+) {
+  return buildDepositPlan(input).preview;
 }

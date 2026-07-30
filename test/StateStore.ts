@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { getAddress, keccak256 } from "viem";
+import { createProtectedMintJob } from "../src/executor/pipeline.js";
 import { ExecutorStateStore } from "../src/executor/state-store.js";
 
 const userOpHash = `0x${"11".repeat(32)}` as const;
@@ -99,6 +101,69 @@ describe("ExecutorStateStore", () => {
         metadata: { attempts: 1n },
       });
       assert.deepEqual(updated.metadata, { attempts: "1" });
+    } finally {
+      store.close();
+    }
+  });
+
+  it("binds a Xaman payload UUID to exactly one durable job lookup", () => {
+    const store = new ExecutorStateStore(":memory:");
+    try {
+      const { job } = store.createOrGet({
+        intentKey: "account:xaman",
+        userOpHash,
+        userOpData,
+        metadata: {
+          xamanPayloadUuid: "11111111-1111-4111-8111-111111111111",
+        },
+      });
+      assert.equal(
+        store.getByXamanPayloadUuid(
+          "11111111-1111-4111-8111-111111111111",
+        )?.id,
+        job.id,
+      );
+      assert.equal(
+        store.getByXamanPayloadUuid(
+          "22222222-2222-4222-8222-222222222222",
+        ),
+        undefined,
+      );
+    } finally {
+      store.close();
+    }
+  });
+
+  it("creates a browser signing job without an XRPL wallet secret", () => {
+    const store = new ExecutorStateStore(":memory:");
+    try {
+      const data = "0x1234" as const;
+      const hash = keccak256(data);
+      const memoData =
+        `0xfe00${"00".repeat(8)}${hash.slice(2)}` as const;
+      const created = createProtectedMintJob(store, {
+        intentKey: "account:browser",
+        userOpHash: hash,
+        userOpData: data,
+        memoData,
+        router: getAddress(
+          "0x1000000000000000000000000000000000000001",
+        ),
+        personalAccount: getAddress(
+          "0x2000000000000000000000000000000000000002",
+        ),
+        nonce: 4n,
+        xrplSourceAccount: "rExpectedSource",
+        coreVaultAddress: "rExpectedCoreVault",
+        paymentAmountDrops: 1_100_000n,
+      });
+
+      assert.equal(created.job.status, "CREATED");
+      assert.equal(
+        created.job.metadata.xrplSourceAccount,
+        "rExpectedSource",
+      );
+      assert.equal("txBlob" in created.job.metadata, false);
     } finally {
       store.close();
     }

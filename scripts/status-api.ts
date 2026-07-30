@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 import { isValidClassicAddress } from "xrpl";
 import { getAddress, type Address, type Hex } from "viem";
 import {
-  buildDepositPreview,
+  buildDepositPlan,
   normalizeDepositPreviewInput,
   type PreviewDeployment,
 } from "../src/api/deposit-preview.js";
@@ -14,7 +14,9 @@ import {
   toPublicJob,
 } from "../src/api/public-model.js";
 import { loadPublicConfig } from "../src/config/env.js";
+import { createProtectedMintJob } from "../src/executor/pipeline.js";
 import { ExecutorStateStore } from "../src/executor/state-store.js";
+import { normalizeXrplTransactionId } from "../src/executor/xrpl.js";
 import { createCoston2PublicClient } from "../src/flare/clients.js";
 import {
   getPersonalAccount,
@@ -166,7 +168,7 @@ if (!Number.isSafeInteger(port) || port < 1 || port > 65_535) {
   throw new Error("STATUS_API_PORT must be an integer in [1, 65535]");
 }
 
-async function createLivePreview(value: unknown) {
+async function createLivePlan(value: unknown) {
   const normalized = normalizeDepositPreviewInput(value);
   if (!isValidClassicAddress(normalized.xrplAddress)) {
     throw new RangeError("xrplAddress must be a valid classic XRPL address");
@@ -185,7 +187,7 @@ async function createLivePreview(value: unknown) {
     contracts.masterAccountController,
     personalAccount,
   );
-  return buildDepositPreview({
+  return buildDepositPlan({
     normalized,
     deployment: previewDeployment,
     chain: { personalAccount, smartAccountNonce, settings },
@@ -201,8 +203,8 @@ const server = createServer(async (request, response) => {
   const url = new URL(request.url, `http://${host}:${port}`);
   if (request.method === "POST" && url.pathname === "/api/preview") {
     try {
-      const preview = await createLivePreview(await readJsonBody(request));
-      sendJson(response, 200, { preview });
+      const plan = await createLivePlan(await readJsonBody(request));
+      sendJson(response, 200, { preview: plan.preview });
     } catch (cause) {
       if (
         cause instanceof RangeError ||
@@ -235,16 +237,57 @@ const server = createServer(async (request, response) => {
       return;
     }
     try {
-      const preview = await createLivePreview(await readJsonBody(request));
+      const plan = await createLivePlan(await readJsonBody(request));
+      const intentKey =
+        `${plan.execution.intent.personalAccount.toLowerCase()}:` +
+        plan.execution.intent.nonce.toString();
+      const existing = store.getByIntentKey(intentKey);
+      if (existing !== undefined) {
+        sendJson(response, 409, {
+          error: "INTENT_ALREADY_ACTIVE",
+          message:
+            "This Personal Account nonce is already bound to an executor job.",
+          job: toPublicJob(existing),
+        });
+        return;
+      }
       const payload = buildXamanPaymentPayload({
-        preview,
+        preview: plan.preview,
         identifier: randomUUID(),
       });
       const signRequest = await createXamanSignRequest({
         credentials: xamanCredentials,
         payload,
       });
-      sendJson(response, 201, { preview, signRequest });
+      const created = createProtectedMintJob(store, {
+        intentKey,
+        userOpHash: plan.execution.userOpHash,
+        userOpData: plan.execution.userOpData,
+        memoData: plan.execution.memoData,
+        router: previewDeployment.router,
+        personalAccount: plan.execution.intent.personalAccount,
+        nonce: plan.execution.intent.nonce,
+        xrplSourceAccount: plan.preview.source.xrplAddress,
+        coreVaultAddress: plan.preview.source.destination,
+        paymentAmountDrops: BigInt(
+          plan.preview.quote.paymentAmountDrops,
+        ),
+        callValue: plan.execution.totalCallValue,
+      });
+      const xamanExpiresAt = new Date(
+        Date.now() + payload.options.expire * 60_000,
+      ).toISOString();
+      const job = store.transition(created.job.id, "CREATED", {
+        metadata: {
+          xamanPayloadUuid: signRequest.uuid,
+          xamanExpiresAt,
+        },
+      });
+      sendJson(response, 201, {
+        preview: plan.preview,
+        signRequest,
+        job: toPublicJob(job),
+      });
     } catch (cause) {
       if (
         cause instanceof RangeError ||
@@ -304,12 +347,50 @@ const server = createServer(async (request, response) => {
       url.pathname.slice("/api/xaman/sign-request/".length),
     );
     try {
+      let job = store.getByXamanPayloadUuid(uuid);
+      if (job === undefined) {
+        sendJson(response, 404, {
+          error: "XAMAN_SIGN_REQUEST_NOT_FOUND",
+        });
+        return;
+      }
       const raw = await getXamanSignRequest({
         credentials: xamanCredentials,
         uuid,
       });
+      const signRequest = toPublicXamanStatus(raw);
+      if (signRequest.resolved && signRequest.signed) {
+        if (!Object.values(signRequest.checks).every(Boolean)) {
+          sendJson(response, 409, {
+            error: "XAMAN_SIGNING_VERIFICATION_FAILED",
+            signRequest,
+            job: toPublicJob(job),
+          });
+          return;
+        }
+        if (signRequest.txid === undefined) {
+          throw new Error("Verified Xaman response is missing a transaction ID");
+        }
+        const xrplTxHash = normalizeXrplTransactionId(signRequest.txid);
+        if (job.status === "CREATED") {
+          job = store.transition(job.id, "XRPL_SIGNED", {
+            xrplTxHash,
+            metadata: {
+              xamanResolvedAt: new Date().toISOString(),
+            },
+          });
+        } else if (
+          job.xrplTxHash !== undefined &&
+          job.xrplTxHash.toLowerCase() !== xrplTxHash.toLowerCase()
+        ) {
+          throw new Error(
+            "Executor job is already bound to a different XRPL transaction",
+          );
+        }
+      }
       sendJson(response, 200, {
-        signRequest: toPublicXamanStatus(raw),
+        signRequest,
+        job: toPublicJob(job),
       });
     } catch (cause) {
       if (cause instanceof RangeError) {

@@ -27,7 +27,10 @@ tooling:
 - live, read-only protected-deposit preview with current Coston2 fee, Personal
   Account nonce, exact XRPL payment and `0xFE` commitment review;
 - backend-only Xaman Testnet sign requests with QR/deeplink delivery,
-  authoritative result checks and an explicit credential-rotation gate;
+  authoritative result checks, durable executor-job binding and an explicit
+  credential-rotation gate;
+- exact XRPL source, destination, amount, memo, delivery-result and
+  DestinationTag validation before any FDC request;
 - unit tests for revert isolation, rollback, min-output, replay, pause, caps,
   accounting deltas, allowances, false-success adapters and executor boundaries.
 - bounded returndata/gas griefing defenses with adapter, vault and token
@@ -148,6 +151,21 @@ receiving a wallet secret. Its API exposes `/api/health`, `/api/jobs`,
 `POST /api/xaman/sign-request` and redacted Xaman status; signed XRPL blobs,
 private keys, Xaman secrets and raw user-operation data are never included in
 browser responses.
+
+Run the private executor worker in a second terminal. It resumes only signed
+or later-stage jobs; it never asks the browser for an XRPL seed or Coston2
+private key:
+
+```bash
+npm run executor:worker
+```
+
+The status API binds every returned Xaman payload UUID to the exact
+`userOpHash`, full backend-only user-operation bytes, Personal Account nonce,
+Core Vault destination and payment amount. Once Xaman reports a signed
+transaction, the executor independently re-reads it from XRPL and rejects any
+source, destination, amount, memo, delivered-amount or DestinationTag mismatch
+before requesting an FDC proof.
 
 Xaman credentials are backend-only. After creating or rotating the app
 credentials, add them to the git-ignored `.env` and deliberately enable

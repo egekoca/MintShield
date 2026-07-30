@@ -85,6 +85,9 @@ const publicMetadataKeys = new Set([
   "recoveryBalanceBefore",
   "recoveryBalanceAfter",
   "originalIntentKey",
+  "xamanPayloadUuid",
+  "xamanExpiresAt",
+  "xrplSourceAccount",
 ]);
 
 function publicDetails(metadata: Record<string, unknown>) {

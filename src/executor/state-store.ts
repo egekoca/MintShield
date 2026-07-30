@@ -258,6 +258,16 @@ export class ExecutorStateStore {
     return row === undefined ? undefined : toJob(row);
   }
 
+  getByXamanPayloadUuid(uuid: string): ExecutorJob | undefined {
+    const row = this.#database
+      .prepare(`
+        SELECT * FROM executor_jobs
+        WHERE json_extract(metadata_json, '$.xamanPayloadUuid') = ?
+      `)
+      .get(uuid) as JobRow | undefined;
+    return row === undefined ? undefined : toJob(row);
+  }
+
   listAll(): ExecutorJob[] {
     const rows = this.#database
       .prepare("SELECT * FROM executor_jobs ORDER BY created_at ASC")

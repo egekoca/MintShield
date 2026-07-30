@@ -152,9 +152,13 @@ minimum output, deadline, fallback receiver and 42-byte `0xFE` commitment.
 The Xaman QR/deeplink backend and bilingual signing UI are implemented with
 forced XRPL Testnet payloads, exact destination/amount/memo construction,
 allowlisted Xaman URLs, WebSocket-triggered status refresh and redacted
-authoritative result checks. Live credential verification remains gated until
-the exposed development secret is rotated; the wallet seed never enters this
-flow.
+authoritative result checks. Each returned Xaman payload is now bound to a
+durable executor job before it reaches the browser. A signed result advances
+that job without requiring an XRPL seed or signed blob, while the private
+worker independently verifies the validated XRPL source, Core Vault,
+amount, delivered amount, single `0xFE` memo, success code and absence of a
+DestinationTag before FDC. Live credential verification remains gated until
+the exposed development secret is rotated.
 
 ## Phase 5 — submission (days 12–14)
 

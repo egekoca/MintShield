@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { getAddress } from "viem";
+import { getAddress, keccak256 } from "viem";
 import {
+  buildDepositPlan,
   buildDepositPreview,
   normalizeDepositPreviewInput,
 } from "../src/api/deposit-preview.js";
@@ -87,6 +88,33 @@ describe("protected deposit preview", function () {
         chain,
         nowSeconds: 2_000_000_000n,
       }),
+    );
+  });
+
+  it("keeps executor bytes outside the public preview", function () {
+    const normalized = normalizeDepositPreviewInput({
+      xrplAddress: "rExample",
+      amountFxrp: "1",
+      minimumShares: "1",
+    });
+    const plan = buildDepositPlan({
+      normalized,
+      deployment,
+      chain,
+      nowSeconds: 2_000_000_000n,
+    });
+
+    assert.equal(
+      keccak256(plan.execution.userOpData),
+      plan.execution.userOpHash,
+    );
+    assert.equal(
+      plan.preview.commitment.userOpHash,
+      plan.execution.userOpHash,
+    );
+    assert.equal(
+      JSON.stringify(plan.preview).includes(plan.execution.userOpData),
+      false,
     );
   });
 });
