@@ -1,6 +1,5 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { isValidClassicAddress } from "xrpl";
 import { getAddress, type Address, type Hex } from "viem";
 import {
   buildDepositPlan,
@@ -15,6 +14,7 @@ import {
   readDirectMintingSettings,
   resolveFlareContracts,
 } from "../src/flare/contracts.js";
+import { isValidXrplClassicAddress } from "../src/xrpl/address.js";
 
 type EvidenceJob = {
   id: string;
@@ -133,7 +133,7 @@ async function readJsonBody(request: Request) {
 
 async function createLivePlan(value: unknown) {
   const normalized = normalizeDepositPreviewInput(value);
-  if (!isValidClassicAddress(normalized.xrplAddress)) {
+  if (!isValidXrplClassicAddress(normalized.xrplAddress)) {
     throw new RangeError("xrplAddress must be a valid classic XRPL address");
   }
   const contracts = await resolveFlareContracts(publicClient);

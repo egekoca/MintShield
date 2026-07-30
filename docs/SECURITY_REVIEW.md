@@ -76,7 +76,7 @@ Hardhat default-profile measurements:
 
 | Metric | Result |
 |---|---:|
-| Tests | 71 passing |
+| Tests | 72 passing |
 | Solidity line coverage | 91.62% |
 | Solidity statement coverage | 83.21% |
 | Router `execute` gas, median | 191,494 |

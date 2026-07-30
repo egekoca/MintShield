@@ -2,7 +2,6 @@ import { createServer, type ServerResponse } from "node:http";
 import { randomUUID } from "node:crypto";
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
-import { isValidClassicAddress } from "xrpl";
 import { getAddress, type Address, type Hex } from "viem";
 import {
   buildDepositPlan,
@@ -31,6 +30,7 @@ import {
   loadOptionalXamanCredentials,
   toPublicXamanStatus,
 } from "../src/xaman/client.js";
+import { isValidXrplClassicAddress } from "../src/xrpl/address.js";
 
 function sendJson(
   response: ServerResponse,
@@ -191,7 +191,7 @@ if (!Number.isSafeInteger(port) || port < 1 || port > 65_535) {
 
 async function createLivePlan(value: unknown) {
   const normalized = normalizeDepositPreviewInput(value);
-  if (!isValidClassicAddress(normalized.xrplAddress)) {
+  if (!isValidXrplClassicAddress(normalized.xrplAddress)) {
     throw new RangeError("xrplAddress must be a valid classic XRPL address");
   }
   const contracts = await resolveFlareContracts(publicClient);
