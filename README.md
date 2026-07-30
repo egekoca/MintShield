@@ -47,6 +47,21 @@ Current checks confirm 3.9 FXRP in the Personal Account, 1 msSHARE held by
 that account, 1 FXRP backing the vault, and zero Router/adapter residual
 balances and allowances.
 
+## Public demo
+
+The public hackathon deployment is available at:
+
+- Application: https://mintshield.vercel.app
+- Support: https://mintshield.vercel.app/support
+- Terms of Service: https://mintshield.vercel.app/terms
+- Privacy Policy: https://mintshield.vercel.app/privacy
+
+The Vercel deployment exposes the dashboard, live read-only Coston2 preview,
+and redacted on-chain evidence. Xaman signing remains deliberately disabled in
+this stateless public deployment until the durable job store and executor
+worker are hosted separately. The complete signing and settlement flow remains
+available through the local status API and private worker.
+
 ## Coston2 deployment
 
 Observed and verified on 30 July 2026 (`chainId` 114):
