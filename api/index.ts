@@ -27,6 +27,30 @@ type EvidenceExport = {
   jobs: EvidenceJob[];
 };
 
+type BareRecoveryEvidence = {
+  observedAt: string;
+  jobId: string;
+  personalAccount: string;
+  nonce: string;
+  original: {
+    xrplTxHash: string;
+    fdcVotingRound: number;
+    revertedFlareTxHash: string;
+  };
+  recoveryFlag: {
+    xrplTxHash: string;
+    fdcVotingRound: number;
+    flareTxHash: string;
+    amount: string;
+    executorFee: string;
+  };
+  stuckRetry: {
+    flareTxHash: string;
+    amount: string;
+    executorFee: string;
+  };
+};
+
 const deploymentFile = JSON.parse(
   readFileSync(
     resolve(process.cwd(), "deployments/coston2.json"),
@@ -47,6 +71,10 @@ const deploymentFile = JSON.parse(
 const evidence = JSON.parse(
   readFileSync(resolve(process.cwd(), "evidence/live-runs.json"), "utf8"),
 ) as EvidenceExport;
+
+const bareRecovery = JSON.parse(
+  readFileSync(resolve(process.cwd(), "evidence/bare-recovery.json"), "utf8"),
+) as BareRecoveryEvidence;
 
 if (deploymentFile.chainId !== 114) {
   throw new Error("Public deployment manifest must target Coston2 chain 114");
@@ -106,6 +134,55 @@ function publicEvidenceJob(job: EvidenceJob) {
     timeline: timeline(job.status),
   };
 }
+
+const recoveryJob: EvidenceJob = {
+  id: bareRecovery.jobId,
+  intentKey:
+    `${bareRecovery.personalAccount.toLowerCase()}:` +
+    `recovery:${bareRecovery.nonce}`,
+  status: "RECOVERED",
+  xrplTxHash: bareRecovery.recoveryFlag.xrplTxHash,
+  votingRound: bareRecovery.recoveryFlag.fdcVotingRound,
+  flareTxHash: bareRecovery.recoveryFlag.flareTxHash,
+  details: {
+    jobKind: "bare-comparison",
+    personalAccount: bareRecovery.personalAccount,
+    nonce: bareRecovery.nonce,
+    recoveryXrplTxHash: bareRecovery.recoveryFlag.xrplTxHash,
+    recoveryVotingRound: bareRecovery.recoveryFlag.fdcVotingRound,
+    recoveryFlareTxHash: bareRecovery.recoveryFlag.flareTxHash,
+    recoveryAmount: bareRecovery.recoveryFlag.amount,
+    recoveryExecutorFee: bareRecovery.recoveryFlag.executorFee,
+    recoveredStuckAmount: bareRecovery.stuckRetry.amount,
+    stuckRetryExecutorFee: bareRecovery.stuckRetry.executorFee,
+  },
+  links: {
+    xrpl:
+      "https://testnet.xrpl.org/transactions/" +
+      bareRecovery.recoveryFlag.xrplTxHash.slice(2).toUpperCase(),
+    flare:
+      "https://coston2-explorer.flare.network/tx/" +
+      bareRecovery.recoveryFlag.flareTxHash,
+    fdc:
+      "https://coston2-systems-explorer.flare.network/voting-round/" +
+      `${bareRecovery.recoveryFlag.fdcVotingRound}?tab=fdc`,
+  },
+  createdAt: bareRecovery.observedAt,
+  updatedAt: bareRecovery.observedAt,
+};
+
+const publicJobs = [...evidence.jobs, recoveryJob];
+const publicSummary = {
+  total: publicJobs.length,
+  active: 0,
+  attention: 0,
+  byStatus: Object.fromEntries(
+    [...new Set(publicJobs.map((job) => job.status))].map((status) => [
+      status,
+      publicJobs.filter((job) => job.status === status).length,
+    ]),
+  ),
+};
 
 function json(value: unknown, status = 200) {
   return Response.json(value, {
@@ -179,14 +256,14 @@ export default {
 
     if (request.method === "GET" && path === "jobs") {
       return json({
-        summary: evidence.summary,
-        jobs: evidence.jobs.map(publicEvidenceJob),
+        summary: publicSummary,
+        jobs: publicJobs.map(publicEvidenceJob),
       });
     }
 
     if (request.method === "GET" && path.startsWith("jobs/")) {
       const id = decodeURIComponent(path.slice("jobs/".length));
-      const job = evidence.jobs.find((candidate) => candidate.id === id);
+      const job = publicJobs.find((candidate) => candidate.id === id);
       return job === undefined
         ? json({ error: "JOB_NOT_FOUND" }, 404)
         : json({ job: publicEvidenceJob(job) });

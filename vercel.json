@@ -7,7 +7,7 @@
   "functions": {
     "api/index.ts": {
       "maxDuration": 30,
-      "includeFiles": "{deployments/coston2.json,evidence/live-runs.json}"
+      "includeFiles": "{deployments/coston2.json,evidence/live-runs.json,evidence/bare-recovery.json}"
     }
   },
   "rewrites": [
