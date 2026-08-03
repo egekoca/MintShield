@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="United Kingdom flag">
+  <defs>
+    <clipPath id="circle">
+      <circle cx="32" cy="32" r="31" />
+    </clipPath>
+  </defs>
+  <g clip-path="url(#circle)">
+    <path fill="#082b60" d="M0 0h64v64H0z" />
+    <path stroke="#fff" stroke-width="13" d="m-5-5 74 74M69-5-5 69" />
+    <path stroke="#cf173c" stroke-width="6" d="m-5-5 74 74M69-5-5 69" />
+    <path stroke="#fff" stroke-width="21" d="M32-4v72M-4 32h72" />
+    <path stroke="#cf173c" stroke-width="11" d="M32-4v72M-4 32h72" />
+  </g>
+  <circle cx="32" cy="32" r="31" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="2" />
+</svg>

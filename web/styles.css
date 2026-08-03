@@ -2055,9 +2055,23 @@ body {
 }
 
 .language-flag {
-  font-size: 14px;
+  display: block;
+  width: 28px;
+  height: 28px;
+  flex: 0 0 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow:
+    0 0 0 1px rgba(8, 42, 34, 0.13),
+    0 2px 7px rgba(8, 42, 34, 0.12);
+}
+
+.language-code {
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
   line-height: 1;
-  filter: saturate(0.92);
 }
 
 .network-pill {
@@ -3508,13 +3522,13 @@ body {
 
 .language-option {
   display: inline-flex;
-  min-width: 54px;
-  height: 32px;
+  min-width: 70px;
+  height: 42px;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  padding: 0 10px;
-  letter-spacing: 0.05em;
+  gap: 8px;
+  padding: 0 11px;
+  letter-spacing: 0;
 }
 
 .hero h1 em {
@@ -3529,7 +3543,7 @@ body {
 
 @media (max-width: 660px) {
   .language-option {
-    min-width: 51px;
-    padding-inline: 8px;
+    min-width: 65px;
+    padding-inline: 9px;
   }
 }

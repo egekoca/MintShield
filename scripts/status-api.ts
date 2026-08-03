@@ -182,6 +182,20 @@ const staticAssets = new Map([
       body: readFileSync(resolve(webRoot, "assets/mintshield-wordmark.png")),
     },
   ],
+  [
+    "/assets/flag-gb.svg",
+    {
+      type: "image/svg+xml",
+      body: readFileSync(resolve(webRoot, "assets/flag-gb.svg")),
+    },
+  ],
+  [
+    "/assets/flag-tr.svg",
+    {
+      type: "image/svg+xml",
+      body: readFileSync(resolve(webRoot, "assets/flag-tr.svg")),
+    },
+  ],
 ]);
 const host = process.env.STATUS_API_HOST ?? "127.0.0.1";
 const port = Number(process.env.STATUS_API_PORT ?? "8787");
