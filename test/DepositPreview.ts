@@ -58,6 +58,9 @@ describe("protected deposit preview", function () {
     assert.equal(preview.commitment.callCount, 2);
     assert.match(preview.commitment.userOpHash, /^0x[0-9a-f]{64}$/);
     assert.equal(preview.quote.expectedPersonalAccountFxrp, "1");
+    assert.equal(preview.preflight.planningChecks, "PASSED");
+    assert.equal(preview.preflight.fullSimulation, "PENDING_FDC_PROOF");
+    assert.equal(preview.preflight.broadcastPolicy, "REQUIRE_FULL_ETH_CALL");
   });
 
   it("rejects precision, invalid deadlines and values above the adapter cap", function () {

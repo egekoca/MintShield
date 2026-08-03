@@ -96,6 +96,8 @@ const translations = {
     copyHash: "Hash’i kopyala",
     previewReadOnly:
       "Ön izleme salt-okunurdur. Devam ettiğinde işlem seed paylaşmadan Xaman içinde yeniden incelenip imzalanır.",
+    planningChecksPassed: "Planlama kontrolleri geçti",
+    fullSimulationPending: "Full eth_call · FDC proof sonrası zorunlu",
     previewFailed: "Ön izleme oluşturulamadı",
     emptyFilter: "Bu filtrede işlem bulunamadı.",
     bareRecovery: "Bare recovery",
@@ -210,6 +212,8 @@ const translations = {
     copyHash: "Copy hash",
     previewReadOnly:
       "The preview is read-only. If you continue, the transaction is reviewed and signed again inside Xaman without sharing a seed.",
+    planningChecksPassed: "Planning checks passed",
+    fullSimulationPending: "Full eth_call · required after FDC proof",
     previewFailed: "Could not create preview",
     emptyFilter: "No transactions match this filter.",
     bareRecovery: "Bare recovery",
@@ -248,6 +252,7 @@ const statusLabels = {
     XRPL_FINALIZED: "XRPL kesinleşti",
     FDC_REQUESTED: "FDC istendi",
     PROOF_READY: "Proof hazır",
+    SIMULATION_PASSED: "Full simülasyon geçti",
     FLARE_SUBMITTED: "Flare gönderildi",
     DELAYED: "Mint gecikmeli",
     SETTLED_SUCCESS: "Başarılı",
@@ -269,6 +274,7 @@ const statusLabels = {
     XRPL_FINALIZED: "XRPL finalized",
     FDC_REQUESTED: "FDC requested",
     PROOF_READY: "Proof ready",
+    SIMULATION_PASSED: "Full simulation passed",
     FLARE_SUBMITTED: "Submitted to Flare",
     DELAYED: "Mint delayed",
     SETTLED_SUCCESS: "Successful",
@@ -303,6 +309,11 @@ const detailLabels = {
     xrplLedgerIndex: "XRPL ledger",
     xrplConfirmations: "XRPL confirmations",
     jobKind: "İş türü",
+    simulationKind: "Simülasyon türü",
+    simulationPolicy: "Simülasyon politikası",
+    simulationResult: "Simülasyon sonucu",
+    simulationPassedAt: "Simülasyon zamanı",
+    simulationAttempts: "Simülasyon denemesi",
   },
   en: {
     personalAccount: "Personal Account",
@@ -320,6 +331,11 @@ const detailLabels = {
     xrplLedgerIndex: "XRPL ledger",
     xrplConfirmations: "XRPL confirmations",
     jobKind: "Job type",
+    simulationKind: "Simulation type",
+    simulationPolicy: "Simulation policy",
+    simulationResult: "Simulation result",
+    simulationPassedAt: "Simulation time",
+    simulationAttempts: "Simulation attempts",
   },
 };
 
@@ -421,6 +437,8 @@ function renderPreview(preview) {
     previewField(t("fallbackReceiver"), shortHash(preview.intent.fallbackReceiver, 10, 8), true),
     previewField(t("deadline"), formatTime(preview.intent.deadlineIso)),
     previewField(t("memo"), `${preview.commitment.memoBytes} ${state.language === "tr" ? "bayt" : "bytes"} · 0xFE`, true),
+    previewField("Preflight", t("planningChecksPassed")),
+    previewField("Broadcast gate", t("fullSimulationPending")),
   );
   panel.append(grid);
 

@@ -187,6 +187,19 @@ export function buildDepositPlan(input: {
       memoBytes: (instruction.memoData.length - 2) / 2,
       callCount: instruction.calls.length,
     },
+    preflight: {
+      planningChecks: "PASSED",
+      fullSimulation: "PENDING_FDC_PROOF",
+      simulationTarget: "executeDirectMintingWithData",
+      broadcastPolicy: "REQUIRE_FULL_ETH_CALL",
+      secondaryChecks: [
+        "INPUT_BOUNDS",
+        "ADAPTER_CAP",
+        "CURRENT_NONCE",
+        "LIVE_FEE_QUOTE",
+        "ONCHAIN_DEADLINE_AND_SLIPPAGE",
+      ],
+    },
     warnings: [
       ...(quote.triggersLargeMintDelay
         ? ["Payment exceeds the current large-mint threshold and can be delayed."]
