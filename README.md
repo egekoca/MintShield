@@ -24,6 +24,8 @@ tooling:
 - read-only Coston2 status, guarded deployment and JSON evidence commands;
 - localhost dashboard and status API with redacted public job/timeline views
   and an explicit, backend-gated Xaman signing action;
+- machine-readable deployment readiness that distinguishes the public
+  read-only demo from the durable local operator stack;
 - live, read-only protected-deposit preview with current Coston2 fee, Personal
   Account nonce, exact XRPL payment and `0xFE` commitment review;
 - backend-only Xaman Testnet sign requests with QR/deeplink delivery,
@@ -63,7 +65,9 @@ The Vercel deployment exposes the dashboard, live read-only Coston2 preview,
 and redacted on-chain evidence. Xaman signing remains deliberately disabled in
 this stateless public deployment until the durable job store and executor
 worker are hosted separately. The complete signing and settlement flow remains
-available through the local status API and private worker.
+available through the local status API and private worker. The UI and
+`/api/readiness` expose this distinction directly instead of implying that a
+disabled wallet button is a temporary frontend error.
 
 ## Coston2 deployment
 
@@ -185,7 +189,7 @@ Open `http://127.0.0.1:8787/` for the responsive evidence dashboard and
 protected-deposit preview. The preview reads current Coston2 protocol settings
 and derives the public intent commitment without submitting a payment or
 receiving a wallet secret. Its API exposes `/api/health`, `/api/jobs`,
-`/api/jobs/:id`, read-only `POST /api/preview`, explicitly gated
+`/api/readiness`, `/api/jobs/:id`, read-only `POST /api/preview`, explicitly gated
 `POST /api/xaman/sign-request` and redacted Xaman status; signed XRPL blobs,
 private keys, Xaman secrets and raw user-operation data are never included in
 browser responses.
@@ -266,7 +270,8 @@ See [Architecture](docs/ARCHITECTURE.md),
 [Implementation plan](docs/IMPLEMENTATION_PLAN.md), and
 [Threat model](docs/THREAT_MODEL.md). Current internal findings and measurements
 are in [Security review](docs/SECURITY_REVIEW.md), and the real transaction
-timeline is in [Live evidence](docs/LIVE_EVIDENCE.md).
+timeline is in [Live evidence](docs/LIVE_EVIDENCE.md). The current product and
+submission gaps are tracked in [Product gap analysis](docs/GAP_ANALYSIS.md).
 
 ## Official references
 

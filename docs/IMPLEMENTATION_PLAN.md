@@ -157,8 +157,10 @@ durable executor job before it reaches the browser. A signed result advances
 that job without requiring an XRPL seed or signed blob, while the private
 worker independently verifies the validated XRPL source, Core Vault,
 amount, delivered amount, single `0xFE` memo, success code and absence of a
-DestinationTag before FDC. Live credential verification remains gated until
-the exposed development secret is rotated.
+DestinationTag before FDC. Credentials remain backend-only and signing still
+requires the explicit operator gate. The public UI now reports deployment
+readiness directly and keeps legacy transaction history separate from the
+newer full-simulation executor policy.
 
 ## Phase 5 — submission (days 12–14)
 
