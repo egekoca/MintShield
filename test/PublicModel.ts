@@ -50,6 +50,56 @@ describe("public status model", () => {
     assert.equal(delayed.timeline.at(-1)?.state, "attention");
   });
 
+  it("publishes full simulation evidence without rewriting legacy timelines", () => {
+    const simulated: ExecutorJob = {
+      id: "job-simulated",
+      intentKey: "account:simulation",
+      status: "SIMULATION_PASSED",
+      userOpHash: `0x${"66".repeat(32)}`,
+      userOpData: "0x",
+      metadata: {
+        simulationKind: "EXECUTE_DIRECT_MINTING_WITH_DATA_ETH_CALL",
+        simulationPolicy: "REQUIRED_BEFORE_BROADCAST",
+        simulationResult: "OUTER_CALL_NON_REVERTING",
+        simulationPassedAt: "2026-08-03T00:00:00.000Z",
+        simulationAttempts: 1,
+      },
+      createdAt: 1_700_000_000_000,
+      updatedAt: 1_700_000_001_000,
+    };
+    const result = toPublicJob(simulated);
+
+    assert.equal(
+      result.timeline.find((step) => step.status === "SIMULATION_PASSED")
+        ?.state,
+      "current",
+    );
+    assert.equal(
+      result.timeline.find((step) => step.status === "FLARE_SUBMITTED")
+        ?.state,
+      "pending",
+    );
+    assert.equal(
+      result.details.simulationPolicy,
+      "REQUIRED_BEFORE_BROADCAST",
+    );
+    assert.equal(
+      result.details.simulationResult,
+      "OUTER_CALL_NON_REVERTING",
+    );
+
+    const legacy = toPublicJob({
+      ...simulated,
+      id: "job-legacy",
+      status: "SETTLED_SUCCESS",
+      metadata: {},
+    });
+    assert.equal(
+      legacy.timeline.some((step) => step.status === "SIMULATION_PASSED"),
+      false,
+    );
+  });
+
   it("treats a completed 0xE0 recovery as a terminal success", () => {
     const job: ExecutorJob = {
       id: "job-3",

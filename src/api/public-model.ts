@@ -34,6 +34,7 @@ const orderedStatuses: readonly JobStatus[] = [
   "XRPL_FINALIZED",
   "FDC_REQUESTED",
   "PROOF_READY",
+  "SIMULATION_PASSED",
   "FLARE_SUBMITTED",
 ] as const;
 
@@ -73,6 +74,14 @@ const publicMetadataKeys = new Set([
   "jobKind",
   "allowFlareRevert",
   "flareGasLimit",
+  "simulationKind",
+  "simulationPolicy",
+  "simulationResult",
+  "simulationPassedAt",
+  "simulationAttempts",
+  "simulationUserOpHash",
+  "simulationCallValue",
+  "simulationAssetManager",
   "recoveryXrplTxHash",
   "recoveryVotingRound",
   "recoveryFdcTxHash",
@@ -96,11 +105,19 @@ function publicDetails(metadata: Record<string, unknown>) {
   );
 }
 
-function timeline(status: JobStatus): PublicJob["timeline"] {
+function timeline(job: ExecutorJob): PublicJob["timeline"] {
+  const { status } = job;
+  const hasSimulationEvidence =
+    status === "SIMULATION_PASSED" ||
+    (job.metadata.simulationPolicy === "REQUIRED_BEFORE_BROADCAST" &&
+      typeof job.metadata.simulationPassedAt === "string");
+  const visibleOrderedStatuses = hasSimulationEvidence
+    ? orderedStatuses
+    : orderedStatuses.filter((step) => step !== "SIMULATION_PASSED");
   const recoveryIndex = recoveryStatuses.indexOf(status);
   if (recoveryIndex !== -1) {
     return [
-      ...orderedStatuses.map((step) => ({
+      ...visibleOrderedStatuses.map((step) => ({
         status: step,
         state: "completed" as const,
       })),
@@ -117,19 +134,21 @@ function timeline(status: JobStatus): PublicJob["timeline"] {
       })),
     ];
   }
-  const currentIndex = orderedStatuses.indexOf(status);
-  const base: PublicJob["timeline"] = orderedStatuses.map((step, index) => ({
-    status: step,
-    state:
-      currentIndex === -1
-        ? ("completed" as const)
-        : index < currentIndex
+  const currentIndex = visibleOrderedStatuses.indexOf(status);
+  const base: PublicJob["timeline"] = visibleOrderedStatuses.map(
+    (step, index) => ({
+      status: step,
+      state:
+        currentIndex === -1
           ? ("completed" as const)
-          : index === currentIndex
-            ? ("current" as const)
-            : ("pending" as const),
-  }));
-  if (!orderedStatuses.includes(status)) {
+          : index < currentIndex
+            ? ("completed" as const)
+            : index === currentIndex
+              ? ("current" as const)
+              : ("pending" as const),
+    }),
+  );
+  if (!visibleOrderedStatuses.includes(status)) {
     base.push({
       status,
       state:
@@ -178,7 +197,7 @@ export function toPublicJob(job: ExecutorJob): PublicJob {
             fdc: `https://coston2-systems-explorer.flare.network/voting-round/${job.votingRound}?tab=fdc`,
           }),
     },
-    timeline: timeline(job.status),
+    timeline: timeline(job),
     createdAt: new Date(job.createdAt).toISOString(),
     updatedAt: new Date(job.updatedAt).toISOString(),
   };

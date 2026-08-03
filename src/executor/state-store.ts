@@ -8,6 +8,7 @@ export const JOB_STATUSES = [
   "XRPL_FINALIZED",
   "FDC_REQUESTED",
   "PROOF_READY",
+  "SIMULATION_PASSED",
   "FLARE_SUBMITTED",
   "DELAYED",
   "SETTLED_SUCCESS",
@@ -59,17 +60,19 @@ export type JobPatch = Partial<
     | "votingRound"
     | "flareTxHash"
     | "executionAllowedAt"
-    | "lastError"
     | "metadata"
   >
->;
+> & {
+  lastError?: string | null;
+};
 
 const transitions: Readonly<Record<JobStatus, readonly JobStatus[]>> = {
   CREATED: ["XRPL_SIGNED", "FAILED"],
   XRPL_SIGNED: ["XRPL_FINALIZED", "FAILED"],
   XRPL_FINALIZED: ["FDC_REQUESTED", "FAILED"],
   FDC_REQUESTED: ["PROOF_READY", "FAILED"],
-  PROOF_READY: ["FLARE_SUBMITTED", "FAILED"],
+  PROOF_READY: ["SIMULATION_PASSED", "FLARE_SUBMITTED", "FAILED"],
+  SIMULATION_PASSED: ["FLARE_SUBMITTED", "FAILED"],
   FLARE_SUBMITTED: [
     "DELAYED",
     "SETTLED_SUCCESS",
@@ -78,6 +81,7 @@ const transitions: Readonly<Record<JobStatus, readonly JobStatus[]>> = {
     "FAILED",
   ],
   DELAYED: [
+    "SIMULATION_PASSED",
     "FLARE_SUBMITTED",
     "SETTLED_SUCCESS",
     "SETTLED_FALLBACK",
@@ -330,7 +334,9 @@ export class ExecutorStateStore {
         patch.flareTxHash ?? current.flareTxHash ?? null,
         (patch.executionAllowedAt ?? current.executionAllowedAt)?.toString() ??
           null,
-        patch.lastError ?? current.lastError ?? null,
+        patch.lastError !== undefined
+          ? patch.lastError
+          : current.lastError ?? null,
         serializeMetadata(mergedMetadata),
         updatedAt,
         id,

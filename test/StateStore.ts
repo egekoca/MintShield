@@ -69,6 +69,12 @@ describe("ExecutorStateStore", () => {
         votingRound: 12,
       });
       store.transition(job.id, "PROOF_READY");
+      store.transition(job.id, "SIMULATION_PASSED", {
+        metadata: {
+          simulationPolicy: "REQUIRED_BEFORE_BROADCAST",
+          simulationPassedAt: "2026-08-03T00:00:00.000Z",
+        },
+      });
       store.transition(job.id, "FLARE_SUBMITTED", {
         flareTxHash: `0x${"66".repeat(32)}`,
       });

@@ -41,6 +41,21 @@ export type Settlement =
       reason: string;
     };
 
+export class DirectMintSimulationError extends Error {
+  constructor(cause: unknown) {
+    const causeName =
+      cause instanceof Error && cause.name.length > 0
+        ? cause.name
+        : "unknown RPC error";
+    super(
+      "Full executeDirectMintingWithData eth_call simulation failed; " +
+        `broadcast blocked (${causeName})`,
+      { cause },
+    );
+    this.name = "DirectMintSimulationError";
+  }
+}
+
 export async function submitDirectMintWithData(input: {
   publicClient: PublicClient;
   walletClient: WalletClient;
@@ -50,6 +65,7 @@ export async function submitDirectMintWithData(input: {
   userOpData: Hex;
   callValue?: bigint;
   onTransactionHash?: (hash: Hex) => void;
+  onSimulationSuccess?: () => void | Promise<void>;
   allowRevert?: boolean;
   gasLimit?: bigint;
 }) {
@@ -69,8 +85,15 @@ export async function submitDirectMintWithData(input: {
     value: input.callValue ?? 0n,
     ...(input.gasLimit === undefined ? {} : { gas: input.gasLimit }),
   };
+  let simulationPerformed = false;
   if (input.allowRevert !== true) {
-    await input.publicClient.simulateContract(request);
+    try {
+      await input.publicClient.simulateContract(request);
+    } catch (cause) {
+      throw new DirectMintSimulationError(cause);
+    }
+    simulationPerformed = true;
+    await input.onSimulationSuccess?.();
   }
   const hash = await input.walletClient.writeContract(request);
   input.onTransactionHash?.(hash);
@@ -78,7 +101,7 @@ export async function submitDirectMintWithData(input: {
   if (receipt.status !== "success" && input.allowRevert !== true) {
     throw new Error(`executeDirectMintingWithData reverted: ${hash}`);
   }
-  return { hash, receipt };
+  return { hash, receipt, simulationPerformed };
 }
 
 export function classifySettlement(

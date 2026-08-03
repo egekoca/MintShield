@@ -46,6 +46,14 @@ type PipelineMetadata = {
   jobKind?: "PROTECTED" | "BARE_REVERT_COMPARISON";
   allowFlareRevert?: boolean;
   flareGasLimit?: string;
+  simulationKind?: "EXECUTE_DIRECT_MINTING_WITH_DATA_ETH_CALL";
+  simulationPolicy?: "REQUIRED_BEFORE_BROADCAST" | "BYPASSED_EXPECTED_REVERT";
+  simulationResult?: "OUTER_CALL_NON_REVERTING";
+  simulationPassedAt?: string;
+  simulationAttempts?: number;
+  simulationUserOpHash?: Hex;
+  simulationCallValue?: string;
+  simulationAssetManager?: Address;
   txBlob?: string;
   fdcTxHash?: Hex;
 };
@@ -369,7 +377,10 @@ export class MintShieldExecutorPipeline {
           continue;
         }
 
-        if (job.status === "PROOF_READY") {
+        if (
+          job.status === "PROOF_READY" ||
+          job.status === "SIMULATION_PASSED"
+        ) {
           await this.#submitFlare(job, details, options.signal);
           continue;
         }
@@ -431,6 +442,16 @@ export class MintShieldExecutorPipeline {
         memoData: details.memoData,
       },
     });
+    const allowRevert = details.allowFlareRevert ?? false;
+    if (allowRevert) {
+      this.#dependencies.store.transition(job.id, job.status, {
+        lastError: null,
+        metadata: {
+          simulationKind: "EXECUTE_DIRECT_MINTING_WITH_DATA_ETH_CALL",
+          simulationPolicy: "BYPASSED_EXPECTED_REVERT",
+        },
+      });
+    }
     const submitted = await submitDirectMintWithData({
       publicClient: this.#dependencies.publicClient,
       walletClient: this.#dependencies.walletClient,
@@ -439,12 +460,36 @@ export class MintShieldExecutorPipeline {
       proof,
       userOpData: job.userOpData,
       callValue: BigInt(details.callValue),
+      onSimulationSuccess: async () => {
+        const current = this.#dependencies.store.require(job.id);
+        const previousAttempts = current.metadata.simulationAttempts;
+        const simulationAttempts =
+          typeof previousAttempts === "number" &&
+          Number.isSafeInteger(previousAttempts) &&
+          previousAttempts >= 0
+            ? previousAttempts + 1
+            : 1;
+        this.#dependencies.store.transition(job.id, "SIMULATION_PASSED", {
+          lastError: null,
+          metadata: {
+            simulationKind: "EXECUTE_DIRECT_MINTING_WITH_DATA_ETH_CALL",
+            simulationPolicy: "REQUIRED_BEFORE_BROADCAST",
+            simulationResult: "OUTER_CALL_NON_REVERTING",
+            simulationPassedAt: new Date().toISOString(),
+            simulationAttempts,
+            simulationUserOpHash: job.userOpHash,
+            simulationCallValue: details.callValue,
+            simulationAssetManager:
+              this.#dependencies.contracts.assetManagerFXRP,
+          },
+        });
+      },
       onTransactionHash: (flareTxHash) => {
         this.#dependencies.store.transition(job.id, "FLARE_SUBMITTED", {
           flareTxHash,
         });
       },
-      allowRevert: details.allowFlareRevert ?? false,
+      allowRevert,
       ...(details.flareGasLimit === undefined
         ? {}
         : { gasLimit: BigInt(details.flareGasLimit) }),
