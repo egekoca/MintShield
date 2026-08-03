@@ -12,6 +12,7 @@ import {
   summarizeJobs,
   toPublicJob,
 } from "../src/api/public-model.js";
+import { buildServiceReadiness } from "../src/api/service-readiness.js";
 import { loadPublicConfig } from "../src/config/env.js";
 import { createProtectedMintJob } from "../src/executor/pipeline.js";
 import { ExecutorStateStore } from "../src/executor/state-store.js";
@@ -118,6 +119,10 @@ const previewDeployment: PreviewDeployment = {
 const publicConfig = loadPublicConfig();
 const publicClient = createCoston2PublicClient(publicConfig.coston2RpcUrl);
 const xamanCredentials = loadOptionalXamanCredentials();
+const readiness = buildServiceReadiness({
+  deploymentMode: "durable-executor",
+  xamanConfigured: xamanCredentials !== undefined,
+});
 const staticAssets = new Map([
   [
     "/",
@@ -358,6 +363,15 @@ const server = createServer(async (request, response) => {
       service: "mintshield-status-api",
       chainId: 114,
       xamanConfigured: xamanCredentials !== undefined,
+      deploymentMode: "durable-executor",
+      readiness,
+      now: new Date().toISOString(),
+    });
+    return;
+  }
+  if (url.pathname === "/api/readiness") {
+    sendJson(response, 200, {
+      readiness,
       now: new Date().toISOString(),
     });
     return;
@@ -464,6 +478,7 @@ server.listen(port, host, () => {
       dashboard: `http://${host}:${port}/`,
       endpoints: [
         "/api/health",
+        "/api/readiness",
         "/api/jobs",
         "/api/jobs/:id",
         "POST /api/preview",

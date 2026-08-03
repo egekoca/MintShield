@@ -6,6 +6,13 @@ import {
   normalizeDepositPreviewInput,
   type PreviewDeployment,
 } from "../src/api/deposit-preview.js";
+import {
+  evidenceIncludesSimulationRecords,
+  summarizeExportedEvidenceJobs,
+  withEvidenceTimeline,
+  type ExportedEvidenceJob,
+} from "../src/api/evidence-model.js";
+import { buildServiceReadiness } from "../src/api/service-readiness.js";
 import { loadPublicConfig } from "../src/config/env.js";
 import { createCoston2PublicClient } from "../src/flare/clients.js";
 import {
@@ -16,15 +23,10 @@ import {
 } from "../src/flare/contracts.js";
 import { isValidXrplClassicAddress } from "../src/xrpl/address.js";
 
-type EvidenceJob = {
-  id: string;
-  status: string;
-  [key: string]: unknown;
-};
-
 type EvidenceExport = {
+  exportedAt: string;
   summary: Record<string, unknown>;
-  jobs: EvidenceJob[];
+  jobs: ExportedEvidenceJob[];
 };
 
 type BareRecoveryEvidence = {
@@ -92,50 +94,7 @@ const previewDeployment: PreviewDeployment = {
 const publicConfig = loadPublicConfig();
 const publicClient = createCoston2PublicClient(publicConfig.coston2RpcUrl);
 
-const protectedSteps = [
-  "CREATED",
-  "XRPL_SIGNED",
-  "XRPL_FINALIZED",
-  "FDC_REQUESTED",
-  "PROOF_READY",
-  "FLARE_SUBMITTED",
-] as const;
-
-function timeline(status: string) {
-  const currentIndex = protectedSteps.indexOf(
-    status as (typeof protectedSteps)[number],
-  );
-  const steps: Array<{ status: string; state: string }> =
-    protectedSteps.map((step, index) => ({
-      status: step,
-      state:
-        currentIndex === -1 || index < currentIndex
-          ? "completed"
-          : index === currentIndex
-            ? "current"
-            : "pending",
-    }));
-  if (currentIndex === -1) {
-    steps.push({
-      status,
-      state: ["SETTLED_SUCCESS", "SETTLED_FALLBACK", "RECOVERED"].includes(
-        status,
-      )
-        ? "current"
-        : "attention",
-    });
-  }
-  return steps;
-}
-
-function publicEvidenceJob(job: EvidenceJob) {
-  return {
-    ...job,
-    timeline: timeline(job.status),
-  };
-}
-
-const recoveryJob: EvidenceJob = {
+const recoveryJob: ExportedEvidenceJob = {
   id: bareRecovery.jobId,
   intentKey:
     `${bareRecovery.personalAccount.toLowerCase()}:` +
@@ -172,17 +131,19 @@ const recoveryJob: EvidenceJob = {
 };
 
 const publicJobs = [...evidence.jobs, recoveryJob];
-const publicSummary = {
-  total: publicJobs.length,
-  active: 0,
-  attention: 0,
-  byStatus: Object.fromEntries(
-    [...new Set(publicJobs.map((job) => job.status))].map((status) => [
-      status,
-      publicJobs.filter((job) => job.status === status).length,
-    ]),
-  ),
-};
+const publicSummary = summarizeExportedEvidenceJobs(publicJobs);
+const readiness = buildServiceReadiness({
+  deploymentMode: "public-evidence",
+  xamanConfigured: false,
+  evidence: {
+    exportedAt: evidence.exportedAt,
+    total: publicSummary.total,
+    settledSuccess: publicSummary.byStatus.SETTLED_SUCCESS ?? 0,
+    settledFallback: publicSummary.byStatus.SETTLED_FALLBACK ?? 0,
+    recovered: publicSummary.byStatus.RECOVERED ?? 0,
+    includesSimulationRecords: evidenceIncludesSimulationRecords(publicJobs),
+  },
+});
 
 function json(value: unknown, status = 200) {
   return Response.json(value, {
@@ -250,14 +211,19 @@ export default {
         chainId: 114,
         xamanConfigured: false,
         deploymentMode: "public-evidence",
+        readiness,
         now: new Date().toISOString(),
       });
+    }
+
+    if (request.method === "GET" && path === "readiness") {
+      return json({ readiness, now: new Date().toISOString() });
     }
 
     if (request.method === "GET" && path === "jobs") {
       return json({
         summary: publicSummary,
-        jobs: publicJobs.map(publicEvidenceJob),
+        jobs: publicJobs.map(withEvidenceTimeline),
       });
     }
 
@@ -266,7 +232,7 @@ export default {
       const job = publicJobs.find((candidate) => candidate.id === id);
       return job === undefined
         ? json({ error: "JOB_NOT_FOUND" }, 404)
-        : json({ job: publicEvidenceJob(job) });
+        : json({ job: withEvidenceTimeline(job) });
     }
 
     if (request.method === "POST" && path === "preview") {
