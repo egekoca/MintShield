@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="tr">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="MintShield — FXRP direct mint işlemleri için failure-isolated execution katmanı."
+      content="MintShield — failure-isolated FXRP execution for Flare Smart Accounts."
     />
     <title>MintShield · Protected FXRP Execution</title>
     <link rel="icon" href="/assets/mintshield-icon.png" type="image/png" />
@@ -17,7 +17,7 @@
     <div class="ambient ambient-two"></div>
 
     <header class="topbar shell">
-      <a class="brand" href="/" aria-label="MintShield ana sayfa">
+      <a class="brand" href="/" aria-label="MintShield home">
         <span class="brand-mark brand-mark-image" aria-hidden="true">
           <img src="/assets/mintshield-icon.png" alt="" />
         </span>
@@ -27,13 +27,21 @@
         </span>
       </a>
 
+      <nav class="primary-nav" aria-label="Primary navigation">
+        <a href="#how-it-works" data-i18n="navHow">How it works</a>
+        <a href="#protect" data-i18n="navTest">Test the flow</a>
+        <a href="#operations" data-i18n="navEvidence">Evidence</a>
+      </nav>
+
       <div class="topbar-actions">
         <div class="language-switch" role="group" aria-label="Language">
-          <button type="button" class="language-option active" data-lang="tr">
-            TR
+          <button type="button" class="language-option active" data-lang="en">
+            <span class="language-flag" aria-hidden="true">🇬🇧</span>
+            <span>EN</span>
           </button>
-          <button type="button" class="language-option" data-lang="en">
-            EN
+          <button type="button" class="language-option" data-lang="tr">
+            <span class="language-flag" aria-hidden="true">🇹🇷</span>
+            <span>TR</span>
           </button>
         </div>
         <div class="network-pill" title="Flare Coston2 testnet">
@@ -49,38 +57,38 @@
         <div class="hero-copy">
           <div class="eyebrow">
             <span></span>
-            <b data-i18n="heroEyebrow">Flare Smart Accounts için güvenlik katmanı</b>
+            <b data-i18n="heroEyebrow">Execution safety for Flare Smart Accounts</b>
           </div>
           <h1>
-            <span data-i18n="heroTitle">İşlem başarısız olsa</span><br />
-            <em data-i18n="heroAccent">da FXRP güvende kalır.</em>
+            <span data-i18n="heroTitle">Let the action fail.</span><br />
+            <em data-i18n="heroAccent">Keep the FXRP safe.</em>
           </h1>
           <p data-i18n="heroBody">
-            MintShield, direct mint sonrasındaki DeFi çağrısını izole eder.
-            Desteklenen işlem ya zincir üzerinde tamamlanır ya da FXRP aynı
-            user operation içinde Personal Account’a geri döner.
+            MintShield adds a failure-isolated execution boundary after an
+            FAssets direct mint. The action settles, or the exact FXRP remains
+            in the user's Personal Account—without recovery UX.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#protect">
-              <span data-i18n="planAction">Korumalı işlemi planla</span>
+              <span data-i18n="planAction">Run a live preview</span>
               <span aria-hidden="true">↘</span>
             </a>
-            <a
-              class="button secondary"
-              href="https://dev.flare.network/smart-accounts/overview"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <span>Flare Smart Accounts</span>
-              <span aria-hidden="true">↗</span>
+            <a class="button secondary" href="#how-it-works">
+              <span data-i18n="seeFlow">See the execution flow</span>
+              <span aria-hidden="true">↓</span>
             </a>
+          </div>
+          <div class="hero-assurances" aria-label="Security properties">
+            <span><i>✓</i><b data-i18n="noSeed">No seed custody</b></span>
+            <span><i>✓</i><b data-i18n="fullSimulation">Full-call simulation</b></span>
+            <span><i>✓</i><b data-i18n="exactFallback">Exact FXRP fallback</b></span>
           </div>
         </div>
 
         <div class="protection-card">
           <div class="card-glow"></div>
           <div class="protection-head">
-            <span data-i18n="protectionPrinciple">Koruma ilkesi</span>
+            <span data-i18n="protectionPrinciple">Execution invariant</span>
             <span class="live-chip"><i></i> LIVE</span>
           </div>
           <div class="shield-orbit">
@@ -92,61 +100,133 @@
           </div>
           <div class="invariant">
             <span class="mono">action.success</span>
-            <span class="or" data-i18n="or">veya</span>
+            <span class="or" data-i18n="or">or</span>
             <span class="mono accent">exact FXRP return</span>
           </div>
           <div class="protection-foot">
-            <span data-i18n="routerResidual">Router bakiyesi</span>
+            <span data-i18n="routerResidual">Router residual</span>
             <strong>0 FXRP</strong>
           </div>
         </div>
       </section>
 
-      <section class="metrics" aria-label="Canlı ağ özeti">
+      <section class="metrics" aria-label="Live network summary">
         <article>
           <span class="metric-icon success">✓</span>
           <div>
-            <small data-i18n="protectedSettlements">Korumalı sonuçlar</small>
+            <small data-i18n="protectedSettlements">Protected settlements</small>
             <strong id="settled-count">—</strong>
           </div>
-          <span class="metric-note" data-i18n="onChain">zincir üstü</span>
+          <span class="metric-note" data-i18n="onChain">on-chain</span>
         </article>
         <article>
           <span class="metric-icon fallback">↩</span>
           <div>
-            <small data-i18n="exactFallbacks">Exact fallback</small>
+            <small data-i18n="exactFallbacks">Exact fallbacks</small>
             <strong id="fallback-count">—</strong>
           </div>
-          <span class="metric-note" data-i18n="zeroLoss">0 kayıp</span>
+          <span class="metric-note" data-i18n="zeroLoss">0 loss</span>
         </article>
         <article>
           <span class="metric-icon recovery">⌁</span>
           <div>
-            <small data-i18n="recoveryFlows">Kurtarma akışları</small>
+            <small data-i18n="recoveryFlows">Recovery proofs</small>
             <strong id="recovery-count">—</strong>
           </div>
-          <span class="metric-note" data-i18n="proven">kanıtlı</span>
+          <span class="metric-note" data-i18n="proven">verified</span>
         </article>
         <article>
           <span class="metric-icon neutral">◇</span>
           <div>
-            <small data-i18n="activeJobs">Aktif işler</small>
+            <small data-i18n="activeJobs">Active jobs</small>
             <strong id="active-count">—</strong>
           </div>
-          <span class="metric-note" id="sync-label" data-i18n="connecting">bağlanıyor</span>
+          <span class="metric-note" id="sync-label" data-i18n="connecting">connecting</span>
         </article>
+      </section>
+
+      <section class="journey" id="how-it-works">
+        <div class="section-heading journey-heading">
+          <div>
+            <div class="eyebrow"><span></span><b data-i18n="journeyEyebrow">One payment. One protected outcome.</b></div>
+            <h2 data-i18n="journeyTitle">From XRP payment to safe execution.</h2>
+          </div>
+          <p data-i18n="journeyBody">
+            MintShield keeps planning, wallet approval, protocol proof and
+            application execution visibly separate. Every gate has a clear job.
+          </p>
+        </div>
+
+        <div class="journey-grid">
+          <article class="journey-step">
+            <div class="journey-step-head"><span>01</span><i>◎</i></div>
+            <small data-i18n="flowStagePlan">PLAN</small>
+            <h3 data-i18n="flowPlanTitle">Preview the intent</h3>
+            <p data-i18n="flowPlanBody">Read live Coston2 fees and nonce. Nothing is signed or submitted.</p>
+            <b class="stage-tag read-only" data-i18n="readOnly">READ ONLY</b>
+          </article>
+          <article class="journey-step">
+            <div class="journey-step-head"><span>02</span><i>✦</i></div>
+            <small data-i18n="flowStageSign">AUTHORIZE</small>
+            <h3 data-i18n="flowSignTitle">Sign in Xaman</h3>
+            <p data-i18n="flowSignBody">Review one XRPL Testnet payment carrying the committed 0xFE instruction.</p>
+            <b class="stage-tag wallet" data-i18n="externalWallet">EXTERNAL WALLET</b>
+          </article>
+          <article class="journey-step">
+            <div class="journey-step-head"><span>03</span><i>◇</i></div>
+            <small data-i18n="flowStageProve">VERIFY</small>
+            <h3 data-i18n="flowProveTitle">Prove the payment</h3>
+            <p data-i18n="flowProveBody">The executor validates XRPL fields and waits for the FDC payment proof.</p>
+            <b class="stage-tag protocol">XRPL + FDC</b>
+          </article>
+          <article class="journey-step featured">
+            <div class="journey-step-head"><span>04</span><i>⌁</i></div>
+            <small data-i18n="flowStageSimulate">GATE</small>
+            <h3 data-i18n="flowSimulateTitle">Simulate the full call</h3>
+            <p data-i18n="flowSimulateBody">An exact eth_call must pass after proof construction before broadcast.</p>
+            <b class="stage-tag simulation">FULL ETH_CALL</b>
+          </article>
+          <article class="journey-step">
+            <div class="journey-step-head"><span>05</span><i>✓</i></div>
+            <small data-i18n="flowStageSettle">SETTLE</small>
+            <h3 data-i18n="flowSettleTitle">Receive a safe result</h3>
+            <p data-i18n="flowSettleBody">Vault shares on success, or the exact FXRP fallback in the Personal Account.</p>
+            <b class="stage-tag outcome" data-i18n="protectedOutcome">PROTECTED OUTCOME</b>
+          </article>
+        </div>
+
+        <div class="test-paths">
+          <article class="test-path available">
+            <div class="test-path-number">A</div>
+            <div class="test-path-copy">
+              <div class="test-path-kicker"><span data-i18n="testPathQuick">QUICK PRODUCT TEST</span><b data-i18n="availableNow">AVAILABLE NOW</b></div>
+              <h3 data-i18n="quickTestTitle">Explore safely in the browser</h3>
+              <p data-i18n="quickTestBody">Use any XRPL Testnet public address, create a live intent preview and inspect fees, nonce, fallback and commitment. No wallet signature and no funds move.</p>
+            </div>
+            <a class="button primary compact-button" href="#protect"><span data-i18n="startPreview">Start preview</span><span>→</span></a>
+          </article>
+          <article class="test-path operator">
+            <div class="test-path-number">B</div>
+            <div class="test-path-copy">
+              <div class="test-path-kicker"><span data-i18n="testPathFull">FULL TESTNET SETTLEMENT</span><b data-i18n="operatorMode">OPERATOR MODE</b></div>
+              <h3 data-i18n="fullTestTitle">Run the end-to-end Xaman flow</h3>
+              <p data-i18n="fullTestBody">Run the durable status API and executor worker, sign the generated payment in Xaman Testnet, then follow XRPL → FDC → simulation → Flare settlement.</p>
+            </div>
+            <a class="button secondary compact-button" href="https://github.com/egekoca/MintShield#local-testnet-operator" target="_blank" rel="noreferrer"><span data-i18n="openRunbook">Open runbook</span><span>↗</span></a>
+          </article>
+        </div>
       </section>
 
       <section class="planner" id="protect">
         <div class="section-heading">
           <div>
-            <div class="eyebrow"><span></span><b data-i18n="reviewEyebrow">Anladığın işlemi imzala</b></div>
-            <h2 data-i18n="reviewTitle">İmzadan önce her alanı gör.</h2>
+            <div class="eyebrow"><span></span><b data-i18n="reviewEyebrow">Live Coston2 product test</b></div>
+            <h2 data-i18n="reviewTitle">Know every field before signing.</h2>
           </div>
           <p data-i18n="reviewBody">
-            Bu ekran Coston2’den güncel fee ve nonce değerlerini salt-okunur
-            olarak çeker. Seed veya private key istemez; yalnızca imzalanacak
-            intent’in insan tarafından okunabilir ön izlemesini üretir.
+            Enter a public XRPL Testnet address. MintShield reads current
+            protocol values and builds a human-readable commitment without
+            asking for a seed or moving funds.
           </p>
         </div>
 
@@ -155,13 +235,13 @@
             <div class="form-head">
               <span class="step-number">01</span>
               <div>
-                <strong data-i18n="protectedDeposit">Korumalı deposit</strong>
+                <strong data-i18n="protectedDeposit">Protected deposit</strong>
                 <small>FailureVault · ERC-4626 adapter v2</small>
               </div>
             </div>
 
             <label class="field full">
-              <span data-i18n="xrplAccount">XRPL Testnet hesabı</span>
+              <span data-i18n="xrplAccount">XRPL Testnet account</span>
               <input
                 name="xrplAddress"
                 data-i18n-placeholder="xrplAccountPlaceholder"
@@ -169,14 +249,14 @@
                 spellcheck="false"
                 required
               />
-              <small data-i18n="xrplAccountHint">Yalnızca public classic address; seed asla girilmez.</small>
+              <small data-i18n="xrplAccountHint">Public classic address only. Never enter a seed.</small>
               <a
                 class="field-help"
                 href="https://help.xaman.app/app/learning-more-about-xaman/how-to-access-testnet-on-xrp-ledger"
                 target="_blank"
                 rel="noopener noreferrer"
                 data-i18n="xrplTestnetHelp"
-              >Xaman Testnet hesabı oluşturma rehberi ↗</a>
+              >How to create a Xaman Testnet account ↗</a>
             </label>
 
             <div class="field-row">
