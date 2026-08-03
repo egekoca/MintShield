@@ -153,6 +153,26 @@ replace an existing seed.
 `executor:run` creates or resumes one durable job. It never creates a second
 XRPL payment for the same Personal Account Smart Account nonce.
 
+### Local testnet operator
+
+The public Vercel site deliberately exposes a read-only product preview. A full
+settlement needs the durable SQLite job store and private executor worker, so
+run the following two services locally in separate terminals:
+
+```bash
+npm run api:status
+npm run executor:worker
+```
+
+Before starting, keep `XAMAN_API_SECRET` and `COSTON2_PRIVATE_KEY` only in the
+git-ignored `.env`, set `XAMAN_ENABLE_SIGNING=true`, fund the Xaman account with
+XRPL Testnet XRP, fund the executor with Coston2 test FLR, and run
+`npm run preflight:integration`. Then open `http://127.0.0.1:8787`, enter the
+same Xaman Testnet public address, create the preview, and approve the generated
+payment in Xaman. The dashboard follows the durable job through XRPL
+finalization, FDC proof construction, full-call simulation and Flare
+settlement. No seed is entered in the browser.
+
 The optional evidence dashboard and status service listen on localhost by
 default. Evidence, job and preview views are read-only; only the explicitly
 enabled Xaman endpoint creates an external signing request:
