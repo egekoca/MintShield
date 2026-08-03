@@ -51,6 +51,7 @@ human-readable intent.
 | Replay | domain-separated intent ID and Smart Account memo nonce | A malformed user operation can still require `0xE0` |
 | Rate-limit delay | executor `DELAYED` state and same-proof retry | Operational liveness |
 | Wrong Core Vault/payment below fee | runtime lookup and preflight | Some mistakes are irreversible and not recoverable |
+| Packed user operation reverts at current Flare state | exact proof-aware `executeDirectMintingWithData` `eth_call` gates protected broadcast | State can change after simulation; on-chain deadline/slippage guards and isolation remain authoritative |
 | Xaman API secret exposed to browser or logs | backend-only headers, redacted responses, git-ignored env and explicit enable gate | Host compromise can still expose process credentials |
 | Forged Xaman QR/deeplink/status URL | response host/protocol allowlist and restrictive CSP | Xaman domain or local backend compromise remains trusted |
 | WebSocket event spoofing or race | WebSocket is only a trigger; backend re-fetches authoritative payload status | Xaman API availability can delay confirmation |

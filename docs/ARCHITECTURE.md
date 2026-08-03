@@ -240,8 +240,9 @@ CREATED
   → XRPL_FINALIZED
   → FDC_REQUESTED
   → PROOF_READY
+  → SIMULATION_PASSED
   → FLARE_SUBMITTED
-  ├→ DELAYED(retryAt) ──→ FLARE_SUBMITTED
+  ├→ DELAYED(retryAt) ──→ SIMULATION_PASSED ──→ FLARE_SUBMITTED
   ├→ SETTLED_SUCCESS
   ├→ SETTLED_FALLBACK
   └→ RECOVERY_REQUIRED
@@ -278,6 +279,25 @@ delay.
 Every network loop is bounded by a timeout and accepts an `AbortSignal`.
 Proof data is checked locally for matching XRPL transaction ID, executor-bound
 `proofOwner`, success status and positive received amount before gas is spent.
+
+`SIMULATION_PASSED` is the primary EVM preflight gate. Once the FDC proof is
+available, the executor runs a full `eth_call` of the exact
+`AssetManagerFXRP.executeDirectMintingWithData(proof, userOpData)` request with
+the same executor account and native call value that will be broadcast. A
+revert blocks submission and remains retryable from `PROOF_READY`; success is
+persisted with the committed user-operation hash before `writeContract` is
+allowed. Delayed mints repeat the simulation immediately before their retry.
+A pass means the outer direct-mint call is non-reverting at the simulated
+state; it does not promise adapter success, because an isolated MintShield
+fallback is intentionally also a successful outer call.
+
+Earlier planning checks—input bounds, adapter cap, current nonce, live fee
+quote, deadline and minimum output—remain useful filters but cannot replace the
+proof-aware full call because FXRP does not exist in the Personal Account until
+the direct-mint transaction executes. The intentionally reverting bare
+comparison is the only simulation bypass and is labeled
+`BYPASSED_EXPECTED_REVERT`; its purpose is to exercise Flare's canonical
+`0xE0` backstop, not to define a production execution policy.
 
 The SQLite store contains a signed XRPL blob so an interrupted broadcast can
 resume. It does not store either private key, but the database must still be

@@ -31,6 +31,9 @@ tooling:
   credential-rotation gate;
 - exact XRPL source, destination, amount, memo, delivery-result and
   DestinationTag validation before any FDC request;
+- proof-aware full `eth_call` simulation of the exact
+  `executeDirectMintingWithData(proof, PackedUserOperation)` request before
+  every protected Flare broadcast, with a durable `SIMULATION_PASSED` record;
 - unit tests for revert isolation, rollback, min-output, replay, pause, caps,
   accounting deltas, allowances, false-success adapters and executor boundaries.
 - bounded returndata/gas griefing defenses with adapter, vault and token
@@ -166,6 +169,13 @@ receiving a wallet secret. Its API exposes `/api/health`, `/api/jobs`,
 `POST /api/xaman/sign-request` and redacted Xaman status; signed XRPL blobs,
 private keys, Xaman secrets and raw user-operation data are never included in
 browser responses.
+
+The browser preview performs planning checks only. A faithful full simulation
+requires the validated XRPL payment and its FDC proof, so the private executor
+runs `eth_call` against the exact `executeDirectMintingWithData` request after
+`PROOF_READY` and blocks broadcast unless it succeeds. The deliberate bare
+revert comparison is the only explicit bypass; it exists solely to demonstrate
+the canonical `0xE0` recovery path.
 
 Run the private executor worker in a second terminal. It resumes only signed
 or later-stage jobs; it never asks the browser for an XRPL seed or Coston2

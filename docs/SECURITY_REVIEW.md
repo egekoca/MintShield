@@ -1,6 +1,6 @@
 # Security review checkpoint
 
-Review date: 30 July 2026. This is an internal engineering review, not an
+Review date: 3 August 2026. This is an internal engineering review, not an
 independent audit.
 
 ## Resolved findings
@@ -56,6 +56,32 @@ Router reverts before token movement. Tests verify the low-gas call fails closed
 and leaves balances unchanged. A second XRPL → FDC → Coston2 run with the
 revised deployment settled successfully with exact 1,000,000 UBA input/output.
 
+### MS-04 — advisory checks mistaken for execution simulation
+
+The browser could validate bounds, current nonce, live fees and signed limits,
+but it could not faithfully execute the future Personal Account call before
+the XRPL payment and FDC proof existed. Treating those checks as a complete
+simulation would create false confidence.
+
+Resolution:
+
+- planning checks are explicitly labeled as advisory and the UI reports the
+  full simulation as pending;
+- after `PROOF_READY`, the executor performs `eth_call` on the exact
+  `executeDirectMintingWithData(proof, userOpData)` request using the broadcast
+  account and call value;
+- a revert prevents `writeContract`; a pass is durably recorded as
+  `SIMULATION_PASSED` before broadcast;
+- a pass is labeled `OUTER_CALL_NON_REVERTING`; it does not misrepresent a
+  possible isolated adapter fallback as guaranteed DeFi success;
+- public job errors report that the simulation blocked broadcast without
+  embedding proof or full user-operation arguments from the RPC error;
+- delayed protected mints are re-simulated before retry;
+- only the deliberate reverting bare comparison may bypass the gate, and the
+  bypass policy is recorded separately;
+- deadline, slippage and accounting checks remain enforced on-chain because
+  state can change between simulation and inclusion.
+
 ## Adversarial test matrix
 
 The local suite now exercises:
@@ -76,7 +102,7 @@ Hardhat default-profile measurements:
 
 | Metric | Result |
 |---|---:|
-| Tests | 72 passing |
+| Tests | 76 passing |
 | Solidity line coverage | 91.62% |
 | Solidity statement coverage | 83.21% |
 | Router `execute` gas, median | 191,494 |
