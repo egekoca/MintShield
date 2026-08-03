@@ -3547,3 +3547,271 @@ body {
     padding-inline: 9px;
   }
 }
+
+/* Readability pass — operational values lead, supporting copy recedes. */
+.eyebrow {
+  font-size: 12px;
+}
+
+.metrics small {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.metrics strong {
+  font-size: 31px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric-note {
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.journey-step > small,
+.test-path-kicker,
+.stage-tag {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.journey-step h3 {
+  font-size: 23px;
+  font-weight: 650;
+}
+
+.journey-step p {
+  font-size: 13px;
+  line-height: 1.62;
+}
+
+.test-path h3 {
+  font-size: 24px;
+  font-weight: 650;
+}
+
+.test-path p {
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.form-head strong,
+.preview-head strong {
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.form-head small {
+  font-size: 11px;
+}
+
+.field > span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.field > small,
+.field-help {
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.field input,
+.field select {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.amount-input b {
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.safety-note p,
+.preview-empty p,
+.signing-next p {
+  font-size: 11px;
+  line-height: 1.65;
+}
+
+.preview-empty strong {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.preview-ready {
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.payment-total span {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.payment-total strong {
+  font-size: 34px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.payment-total small {
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.preview-field span {
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.preview-field strong {
+  font-size: 12px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.commitment-box > span {
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.commitment-box > code {
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.commitment-box button,
+.preview-warnings {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.flow-title strong {
+  font-size: 15px;
+  font-weight: 750;
+}
+
+.flow-title small {
+  font-size: 11px;
+}
+
+.flow li {
+  font-size: 13px;
+  font-weight: 550;
+}
+
+.flow-outcome span {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.flow-outcome strong {
+  font-size: 14px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.filter {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.table-head {
+  min-height: 50px;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.job-row {
+  min-height: 92px;
+}
+
+.job-identity strong,
+.proof-cell strong,
+.updated-cell strong {
+  font-size: 14px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.job-identity small,
+.proof-cell small,
+.updated-cell small {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.status {
+  padding: 7px 10px;
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.architecture-strip strong {
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.architecture-strip span,
+.architecture-strip small {
+  font-size: 10px;
+}
+
+.dialog-kind,
+.timeline li,
+.details-grid dt {
+  font-size: 11px;
+  font-weight: 650;
+}
+
+.timeline li {
+  min-height: 66px;
+}
+
+.evidence-link,
+.detail-heading {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.details-grid dd {
+  font-size: 13px;
+  font-weight: 750;
+  font-variant-numeric: tabular-nums;
+}
+
+.xaman-kicker {
+  font-size: 9px;
+}
+
+.xaman-copy h3 {
+  font-size: 21px;
+  font-weight: 650;
+}
+
+.xaman-copy p,
+.xaman-note,
+.xaman-status,
+.xaman-open,
+.xaman-check {
+  font-size: 10px;
+}
+
+@media (max-width: 660px) {
+  .journey-step p,
+  .test-path p,
+  .flow li {
+    font-size: 12px;
+  }
+
+  .preview-details {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-field strong {
+    font-size: 13px;
+  }
+}
