@@ -3815,3 +3815,238 @@ body {
     font-size: 13px;
   }
 }
+
+/* Runtime capability disclosure */
+.environment-panel {
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(245, 130, 32, 0.32);
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 8% 20%, rgba(245, 130, 32, 0.12), transparent 28%),
+    linear-gradient(135deg, #082d26 0%, #0b3a31 58%, #082b25 100%);
+  color: #f8f5ec;
+  box-shadow: 0 22px 60px rgba(7, 45, 37, 0.16);
+}
+
+.environment-panel.operator-mode {
+  border-color: rgba(89, 214, 164, 0.48);
+}
+
+.environment-panel.unavailable {
+  border-color: rgba(142, 153, 148, 0.36);
+  filter: saturate(0.72);
+}
+
+.environment-summary {
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 24px 26px;
+}
+
+.environment-icon {
+  display: grid;
+  width: 50px;
+  height: 50px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ff9b46;
+  font-size: 23px;
+  place-items: center;
+}
+
+.environment-summary small {
+  display: block;
+  margin-bottom: 6px;
+  color: #9eb7ae;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.environment-summary h3 {
+  margin: 0 0 5px;
+  color: #fff;
+  font-family: "Iowan Old Style", Georgia, serif;
+  font-size: 25px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.environment-summary p {
+  max-width: 850px;
+  margin: 0;
+  color: #c5d2cd;
+  font-size: 12px;
+  font-weight: 520;
+  line-height: 1.6;
+}
+
+.environment-status {
+  padding: 8px 11px;
+  border: 1px solid rgba(245, 130, 32, 0.42);
+  border-radius: 999px;
+  background: rgba(245, 130, 32, 0.1);
+  color: #ffab63;
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+}
+
+.operator-mode .environment-status {
+  border-color: rgba(89, 214, 164, 0.4);
+  background: rgba(89, 214, 164, 0.09);
+  color: #72e5b7;
+}
+
+.capability-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.capability-grid article {
+  min-width: 0;
+  padding: 17px 20px 19px;
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.capability-grid article:last-child {
+  border-right: 0;
+}
+
+.capability-grid span {
+  display: block;
+  margin-bottom: 6px;
+  color: #9db1aa;
+  font-size: 10px;
+  font-weight: 650;
+}
+
+.capability-grid strong {
+  display: block;
+  overflow: hidden;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.055em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#capability-xaman {
+  color: #ffad67;
+}
+
+.operator-mode #capability-xaman,
+#capability-preview,
+#capability-evidence,
+#capability-simulation {
+  color: #72e5b7;
+}
+
+.evidence-freshness {
+  margin: 0;
+  padding: 13px 26px 15px;
+  border-top: 1px solid rgba(245, 130, 32, 0.17);
+  background: rgba(0, 0, 0, 0.1);
+  color: #c8d3cf;
+  font-size: 10px;
+  font-weight: 550;
+  line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+  .capability-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .capability-grid article:nth-child(2) {
+    border-right: 0;
+  }
+
+  .capability-grid article:nth-child(-n + 2) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+@media (max-width: 660px) {
+  .topbar {
+    width: calc(100% - 20px);
+  }
+
+  .topbar-actions {
+    min-width: 0;
+  }
+
+  .language-option {
+    min-width: 52px;
+    height: 38px;
+    gap: 5px;
+    padding-inline: 7px;
+  }
+
+  .language-flag {
+    width: 24px;
+    height: 24px;
+    flex-basis: 24px;
+  }
+
+  .language-code {
+    font-size: 9px;
+  }
+
+  .hero-copy,
+  .hero h1,
+  .hero h1 span,
+  .hero h1 em,
+  .section-heading h2 {
+    max-width: 100%;
+  }
+
+  .hero h1 {
+    font-size: clamp(40px, 12vw, 52px);
+    line-height: 0.98;
+  }
+
+  .environment-summary {
+    grid-template-columns: 44px minmax(0, 1fr);
+    padding: 20px;
+  }
+
+  .environment-icon {
+    width: 44px;
+    height: 44px;
+  }
+
+  .environment-status {
+    grid-column: 1 / -1;
+    width: fit-content;
+  }
+
+  .environment-summary h3 {
+    font-size: 22px;
+  }
+
+  .capability-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .capability-grid article,
+  .capability-grid article:nth-child(2) {
+    border-right: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .capability-grid article:last-child {
+    border-bottom: 0;
+  }
+
+  .evidence-freshness {
+    padding-inline: 20px;
+  }
+}

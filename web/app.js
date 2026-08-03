@@ -9,6 +9,8 @@ const state = {
   xamanStatus: "idle",
   xamanSocket: null,
   xamanConfigured: false,
+  deploymentMode: null,
+  readiness: null,
 };
 
 const translations = {
@@ -166,6 +168,29 @@ const translations = {
     qrAlt: "MintShield Xaman imza QR kodu",
     xamanCreateFailed: "Xaman imza isteği oluşturulamadı",
     xamanUnavailable: "Xaman güvenli etkinleştirme bekliyor",
+    environmentEyebrow: "MEVCUT ORTAM",
+    environmentChecking: "Deployment kontrol ediliyor…",
+    environmentCheckingBody: "Bu ortamda akışın hangi parçalarının kullanılabildiği doğrulanıyor.",
+    checking: "KONTROL EDİLİYOR",
+    publicEvidenceMode: "Public kanıt demosu",
+    localOperatorMode: "Yerel executor operatörü",
+    readOnlyReady: "SALT OKUNUR HAZIR",
+    operatorReady: "OPERATÖR HAZIR",
+    configurationRequired: "YAPILANDIRMA GEREKLİ",
+    publicEnvironmentBody: "Canlı ön izleme ve doğrulanabilir zincir kayıtları herkese açık. Xaman imzası, durable job store ve ayrı executor worker bulunan yerel operatör ortamında etkinleşir.",
+    operatorEnvironmentBody: "Durable job oluşturma ve Xaman imzası etkin. İşleri XRPL → FDC → simülasyon → Flare boyunca ilerletmek için ayrı executor worker çalışmalıdır.",
+    operatorConfigurationBody: "Durable API hazır; Xaman imza istekleri için backend credentials yapılandırılmalıdır. Executor worker ayrı bir süreçtir.",
+    capabilityPreview: "Canlı Coston2 ön izlemesi",
+    capabilityEvidence: "Zincir üstü kanıtlar",
+    capabilityXaman: "Xaman imzası",
+    capabilitySimulation: "Tam çağrı simülasyonu",
+    capabilityAvailable: "KULLANILABİLİR",
+    capabilityDisabled: "BU ORTAMDA KAPALI",
+    capabilityEnforced: "EXECUTOR ZORUNLU TUTAR",
+    legacyEvidenceNotice: "Kayıtlı zincir kanıtı {date} tarihinde dışa aktarıldı ve yeni simülasyon aşamasından önceye ait. Güncel executor politikası simülasyonu proof sonrasında zorunlu tutar; eski kayıtlara bu aşama sonradan eklenmez.",
+    currentEvidenceNotice: "Kayıtlı kanıt {date} tarihinde dışa aktarıldı ve simülasyon aşaması içeren kayıtlar barındırıyor.",
+    readinessUnavailable: "Ortam bilgisi alınamadı",
+    publicSigningUnavailable: "Public demo salt okunurdur; Xaman imzası yerel durable executor ortamında kullanılabilir",
   },
   en: {
     navHow: "How it works",
@@ -321,6 +346,29 @@ const translations = {
     qrAlt: "MintShield Xaman signing QR code",
     xamanCreateFailed: "Could not create Xaman signing request",
     xamanUnavailable: "Xaman awaits secure activation",
+    environmentEyebrow: "CURRENT ENVIRONMENT",
+    environmentChecking: "Checking deployment…",
+    environmentCheckingBody: "Confirming which parts of the flow are available here.",
+    checking: "CHECKING",
+    publicEvidenceMode: "Public evidence demo",
+    localOperatorMode: "Local executor operator",
+    readOnlyReady: "READ-ONLY READY",
+    operatorReady: "OPERATOR READY",
+    configurationRequired: "CONFIGURATION REQUIRED",
+    publicEnvironmentBody: "Live previews and verifiable on-chain records are public. Xaman signing activates in the local operator stack with durable job storage and a separate executor worker.",
+    operatorEnvironmentBody: "Durable job creation and Xaman signing are enabled. Run the separate executor worker to advance jobs through XRPL → FDC → simulation → Flare.",
+    operatorConfigurationBody: "The durable API is ready; configure backend Xaman credentials before creating signing requests. The executor worker remains a separate process.",
+    capabilityPreview: "Live Coston2 preview",
+    capabilityEvidence: "On-chain evidence",
+    capabilityXaman: "Xaman signing",
+    capabilitySimulation: "Full-call simulation",
+    capabilityAvailable: "AVAILABLE",
+    capabilityDisabled: "DISABLED HERE",
+    capabilityEnforced: "EXECUTOR ENFORCED",
+    legacyEvidenceNotice: "Recorded on-chain evidence was exported on {date} and predates the new simulation stage. Current executor policy requires simulation after proof; legacy records are not rewritten to claim it.",
+    currentEvidenceNotice: "Recorded evidence was exported on {date} and includes records with the simulation stage.",
+    readinessUnavailable: "Environment information unavailable",
+    publicSigningUnavailable: "The public demo is read-only; Xaman signing is available in the local durable executor environment",
   },
 };
 
@@ -564,13 +612,17 @@ function renderPreview(preview) {
   const signButton = el("button", "button xaman-action");
   signButton.type = "button";
   signButton.disabled = !state.xamanConfigured;
-  signButton.title = state.xamanConfigured ? "" : t("xamanUnavailable");
+  const unavailableCopy =
+    state.deploymentMode === "public-evidence"
+      ? t("publicSigningUnavailable")
+      : t("xamanUnavailable");
+  signButton.title = state.xamanConfigured ? "" : unavailableCopy;
   signButton.append(
     el("span", "xaman-mark", "X"),
     el(
       "span",
       "",
-      state.xamanConfigured ? t("signWithXaman") : t("xamanUnavailable"),
+      state.xamanConfigured ? t("signWithXaman") : unavailableCopy,
     ),
     el("span", "", "↗"),
   );
@@ -965,10 +1017,94 @@ async function loadHealth() {
     if (!response.ok) throw new Error(`API ${response.status}`);
     const payload = await response.json();
     state.xamanConfigured = payload.xamanConfigured === true;
+    state.deploymentMode = payload.deploymentMode ?? null;
+    state.readiness = payload.readiness ?? null;
   } catch {
     state.xamanConfigured = false;
+    state.deploymentMode = null;
+    state.readiness = null;
   }
+  renderReadiness();
   if (state.preview !== null) renderPreview(state.preview);
+}
+
+function localizedEvidenceDate(value) {
+  return new Intl.DateTimeFormat(state.language === "tr" ? "tr-TR" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function capabilityCopy(value) {
+  if (value === "AVAILABLE") return t("capabilityAvailable");
+  if (value === "ENFORCED_BY_EXECUTOR") return t("capabilityEnforced");
+  return t("capabilityDisabled");
+}
+
+function renderReadiness() {
+  const panel = $("#environment-panel");
+  if (panel === null) return;
+  const readiness = state.readiness;
+  panel.classList.remove("public-mode", "operator-mode", "unavailable");
+
+  if (readiness === null) {
+    panel.classList.add("unavailable");
+    $("#environment-mode").textContent = t("readinessUnavailable");
+    $("#environment-message").textContent = t("environmentCheckingBody");
+    $("#environment-status").textContent = "OFFLINE";
+    for (const id of ["preview", "evidence", "xaman", "simulation"]) {
+      $(`#capability-${id}`).textContent = "—";
+    }
+    $("#evidence-freshness").hidden = true;
+    return;
+  }
+
+  const operator = readiness.deploymentMode === "durable-executor";
+  panel.classList.add(operator ? "operator-mode" : "public-mode");
+  $("#environment-mode").textContent = t(
+    operator ? "localOperatorMode" : "publicEvidenceMode",
+  );
+  $("#environment-status").textContent = t(
+    readiness.status === "OPERATOR_READY"
+      ? "operatorReady"
+      : readiness.status === "CONFIGURATION_REQUIRED"
+        ? "configurationRequired"
+        : "readOnlyReady",
+  );
+  $("#environment-message").textContent = t(
+    operator
+      ? readiness.status === "OPERATOR_READY"
+        ? "operatorEnvironmentBody"
+        : "operatorConfigurationBody"
+      : "publicEnvironmentBody",
+  );
+
+  $("#capability-preview").textContent = capabilityCopy(
+    readiness.capabilities.livePreview,
+  );
+  $("#capability-evidence").textContent = capabilityCopy(
+    readiness.capabilities.onchainEvidence,
+  );
+  $("#capability-xaman").textContent = capabilityCopy(
+    readiness.capabilities.xamanSigning,
+  );
+  $("#capability-simulation").textContent = capabilityCopy(
+    readiness.capabilities.fullCallSimulation,
+  );
+
+  const freshness = $("#evidence-freshness");
+  if (readiness.evidence === undefined) {
+    freshness.hidden = true;
+  } else {
+    const date = localizedEvidenceDate(readiness.evidence.exportedAt);
+    freshness.textContent = t(
+      readiness.evidence.includesSimulationRecords
+        ? "currentEvidenceNotice"
+        : "legacyEvidenceNotice",
+    ).replace("{date}", date);
+    freshness.hidden = false;
+  }
 }
 
 function applyLanguage(language) {
@@ -996,6 +1132,7 @@ function applyLanguage(language) {
   );
   if (state.summary !== null) updateMetrics(state.summary);
   if (state.jobs.length > 0) renderJobs();
+  renderReadiness();
   if (state.preview !== null) renderPreview(state.preview);
 }
 

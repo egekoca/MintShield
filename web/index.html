@@ -13,8 +13,8 @@
       href="/assets/mintshield-icon.png?v=20260803.2"
       type="image/png"
     />
-    <link rel="stylesheet" href="/styles.css?v=20260803.4" />
-    <script src="/app.js?v=20260803.4" defer></script>
+    <link rel="stylesheet" href="/styles.css?v=20260804.1" />
+    <script src="/app.js?v=20260804.1" defer></script>
   </head>
   <body>
     <div class="ambient ambient-one"></div>
@@ -219,6 +219,37 @@
             <a class="button secondary compact-button" href="https://github.com/egekoca/MintShield#local-testnet-operator" target="_blank" rel="noreferrer"><span data-i18n="openRunbook">Open runbook</span><span>↗</span></a>
           </article>
         </div>
+
+        <section class="environment-panel" id="environment-panel" aria-live="polite">
+          <div class="environment-summary">
+            <span class="environment-icon" aria-hidden="true">◎</span>
+            <div>
+              <small data-i18n="environmentEyebrow">CURRENT ENVIRONMENT</small>
+              <h3 id="environment-mode" data-i18n="environmentChecking">Checking deployment…</h3>
+              <p id="environment-message" data-i18n="environmentCheckingBody">Confirming which parts of the flow are available here.</p>
+            </div>
+            <span class="environment-status" id="environment-status" data-i18n="checking">CHECKING</span>
+          </div>
+          <div class="capability-grid">
+            <article>
+              <span data-i18n="capabilityPreview">Live Coston2 preview</span>
+              <strong id="capability-preview">—</strong>
+            </article>
+            <article>
+              <span data-i18n="capabilityEvidence">On-chain evidence</span>
+              <strong id="capability-evidence">—</strong>
+            </article>
+            <article>
+              <span data-i18n="capabilityXaman">Xaman signing</span>
+              <strong id="capability-xaman">—</strong>
+            </article>
+            <article>
+              <span data-i18n="capabilitySimulation">Full-call simulation</span>
+              <strong id="capability-simulation">—</strong>
+            </article>
+          </div>
+          <p class="evidence-freshness" id="evidence-freshness" hidden></p>
+        </section>
       </section>
 
       <section class="planner" id="protect">
