@@ -46,7 +46,21 @@ export function validateCoreVaultPayment(
   ) {
     throw new Error("XRPL transaction response must be an object");
   }
-  const value = transaction as Record<string, unknown>;
+  const raw = transaction as Record<string, unknown>;
+  // rippled API version 2 nests transaction fields under `tx_json` instead
+  // of returning them flat on the `tx` result; API version 1 (and hand-built
+  // test fixtures) keep them flat. Normalize both shapes to one flat object.
+  const txJson = raw.tx_json;
+  const value =
+    txJson !== null && !Array.isArray(txJson) && typeof txJson === "object"
+      ? { ...raw, ...(txJson as Record<string, unknown>) }
+      : { ...raw };
+  // API version 2 also renames the Payment `Amount` field to `DeliverMax`
+  // (the ledger's actual delivered amount is separately checked below via
+  // meta.delivered_amount). Fall back to it when `Amount` is absent.
+  if (value.Amount === undefined && value.DeliverMax !== undefined) {
+    value.Amount = value.DeliverMax;
+  }
   const meta =
     value.meta !== null &&
     !Array.isArray(value.meta) &&

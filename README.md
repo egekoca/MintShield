@@ -48,9 +48,12 @@ protected fallbacks, a Router-less atomic revert, and the complete official
 recovery finalizations; MintShield returned the newly minted FXRP in the
 original outer transaction.
 
-Current checks confirm 3.9 FXRP in the Personal Account, 1 msSHARE held by
+Current checks confirm 4.9 FXRP in the Personal Account, 1 msSHARE held by
 that account, 1 FXRP backing the vault, and zero Router/adapter residual
-balances and allowances.
+balances and allowances — including a fresh protected success and a fresh
+protected fallback settled against this exact deployment with the
+proof-aware full-simulation gate recorded, run 10 August 2026 (see
+[Live evidence](docs/LIVE_EVIDENCE.md)).
 
 ## Public demo
 

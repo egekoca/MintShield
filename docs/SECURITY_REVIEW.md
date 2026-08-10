@@ -113,9 +113,48 @@ Hardhat default-profile measurements:
 Coverage includes test-only mocks, so percentages should not be interpreted as
 a security guarantee.
 
+## Independent static analysis (Slither)
+
+Run 10 August 2026 with `slither 0.11.4` / `solc 0.8.27`, targeting each
+production contract individually (`--solc-remaps
+@openzeppelin=node_modules/@openzeppelin`).
+
+| Contract | Findings | Severity |
+|---|---|---|
+| `MintShieldRouter.sol` | 1 arbitrary-from, 5 strict-equality, 1 timestamp, 3 assembly, pragma/dead-code notes | None high/critical |
+| `AdapterRegistry.sol` | 1 strict-equality, 1 timestamp, pragma notes | None high/critical |
+| `ERC4626DepositAdapter.sol` | 1 arbitrary-from, 2 assembly, pragma notes | None high/critical |
+
+No reentrancy, access-control, or unchecked-external-call findings. Reviewed
+in detail:
+
+- **arbitrary-from in `transferFrom`** (`Router.pullAsset`,
+  `ERC4626DepositAdapter.execute`): both flagged calls use a caller-supplied
+  `from`, but `pullAsset` is gated `onlySelf` and `from` is the Router's own
+  validated `intent.personalAccount`, never arbitrary external input. False
+  positive for this access pattern.
+- **Strict equality on selectors / `effectiveAt == 0`**: intentional exact
+  4-byte selector matching (`_classifyAdapterFailure`) and an explicit
+  "no pending change" sentinel (`AdapterRegistry.activateAdapter`), not
+  unsafe balance/state comparisons. Slither's detector is documented as
+  prone to this class of false positive.
+- **Assembly usage**: all in the reviewed bounded-returndata call helpers
+  (MS-01 above) and OpenZeppelin's own `SafeERC20`/`StorageSlot`, not new
+  unreviewed low-level code.
+- **Pragma/solc-version notes**: OpenZeppelin's own floating pragmas
+  (`^0.8.20`, `>=0.6.2`, `>=0.4.16`); MintShield's own files pin `^0.8.27`
+  and the deployed build uses the exact `0.8.27` compiler.
+
+This is an automated best-effort scan run by the project team, not an
+independent third-party audit; it does not substitute for one. It closes the
+"no static-analysis pass performed" gap listed below but not the "no
+independent review" one.
+
 ## Open risks
 
-- No independent audit or Slither run has been completed.
+- No independent third-party audit has been completed. A Slither static
+  analysis pass has (see above); it found no high/critical issues but is not
+  a substitute for independent review.
 - Gas policy remains adapter-specific and must be recalibrated for every new
   target, even though the current policy passed a real Coston2 direct mint.
 - Fallback still relies on normal FXRP ERC-20 transfer semantics.

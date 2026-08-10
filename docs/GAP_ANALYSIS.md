@@ -1,6 +1,6 @@
 # Product gap analysis
 
-Last reviewed: 4 August 2026.
+Last reviewed: 10 August 2026.
 
 This document separates what the public demo proves today from work required
 before a public-value pilot. It is intentionally stricter than the hackathon
@@ -19,19 +19,23 @@ demo checklist.
 | Local Xaman settlement | Operator-ready when configured | SQLite status API plus separate executor worker |
 | CI | Implemented | GitHub Actions runs build, typecheck and full tests on Node.js 22 |
 
-The recorded Coston2 success/fallback/recovery evidence was exported on 30 July
-2026, before the full-simulation state was introduced. Those records remain
-historically accurate and do not claim a simulation step. The current executor
-requires the exact proof-bearing `eth_call` before broadcast. A new live run is
-needed to produce transaction evidence that contains both the simulation
-checkpoint and final settlement.
+The original Coston2 success/fallback/recovery evidence was exported on 30
+July 2026, before the full-simulation state was introduced; those records
+remain historically accurate and do not claim a simulation step. A fresh
+protected success and protected fallback were run 10 August 2026 against the
+current post-timelock deployment, both carrying the `SIMULATION_PASSED`
+checkpoint before broadcast and independently re-verified on-chain
+(`npm run verify:settlements`); see
+[Live evidence](LIVE_EVIDENCE.md#post-timelock-deployment--first-live-runs-10-august-2026).
 
 ## Prioritized remaining work
 
 ### P0 — before handling public value
 
 1. Complete an independent smart-contract review and resolve all material
-   findings. Slither and independent review remain open.
+   findings. A Slither pass ran 10 August 2026 with no high/critical results
+   (see [Security review](SECURITY_REVIEW.md)); third-party independent
+   review remains open.
 2. Move Router/Registry administration from a single testnet owner to a
    documented multisig/timelock design.
 3. Deploy the durable API, database and executor worker in a private backend
@@ -41,12 +45,16 @@ checkpoint and final settlement.
 
 ### P1 — before hackathon submission freeze
 
-1. Run one fresh protected success and one fallback with the full simulation
-   gate, then export and verify the new evidence bundle.
-2. Record the three-minute comparison demo using the exact published build.
+1. ~~Run one fresh protected success and one fallback with the full
+   simulation gate, then export and verify the new evidence bundle.~~ Done
+   10 August 2026 (Runs 4–5 in `docs/LIVE_EVIDENCE.md`).
+2. Record the three-minute comparison demo using the exact published build
+   (script ready in `docs/DEMO_SCRIPT.md`).
 3. Run the Quick Start from a clean clone and save the result.
 4. Publish the final DoraHacks description, architecture diagram, contract
-   addresses and honest limitations.
+   addresses and honest limitations (draft ready in `docs/SUBMISSION.md`;
+   still needs the demo video link filled in and a final read-through before
+   submitting).
 
 ### P2 — post-hackathon product work
 

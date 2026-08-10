@@ -146,11 +146,20 @@ const [
   }),
 ]);
 
+// Expected values reflect the live snapshot verified 10 August 2026, after
+// the post-timelock (v3) Router/Registry/Vault/Adapter redeploy and two
+// fresh runs (a protected success and a protected fallback) against it. The
+// FailureVault address changed with that redeploy, so its share/asset
+// totals restarted at zero independently of the pre-timelock evidence in
+// docs/LIVE_EVIDENCE.md; the FXRP token contract itself did not change, so
+// the Personal Account's FXRP balance stays cumulative across deployments
+// (3,900,000 UBA carried over, plus 1,000,000 UBA returned by the new
+// fallback run).
 const checks = {
   chainIsCoston2: chainId === deployment.chainId,
-  smartAccountNonceAdvancedThreeTimes: nonce === 3n,
+  smartAccountNonceAdvancedFiveTimes: nonce === 5n,
   protectedAndRecoveredFxrpMatches:
-    personalAccountFxrp === 3_900_000n,
+    personalAccountFxrp === 4_900_000n,
   successfulDepositMintedExactShares: personalAccountShares === 1_000_000n,
   vaultReceivedExactFxrp: vaultFxrp === 1_000_000n,
   shareSupplyMatchesDeposit: vaultShareSupply === 1_000_000n,
