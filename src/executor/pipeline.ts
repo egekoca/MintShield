@@ -24,6 +24,7 @@ import {
 import {
   ExecutorStateStore,
   type ExecutorJob,
+  type JobStatus,
 } from "./state-store.js";
 import {
   findValidatedXrplTransaction,
@@ -127,6 +128,25 @@ function metadata(job: ExecutorJob): PipelineMetadata {
 
 function toErrorMessage(error: unknown) {
   return error instanceof Error ? error.message : String(error);
+}
+
+/**
+ * A job that keeps throwing on the exact same status (e.g. a deterministic
+ * validation error) is stuck, not merely delayed by a transient RPC blip.
+ * After this many consecutive failures without status progress, the job is
+ * moved to FAILED instead of being retried forever by the worker loop.
+ */
+const MAX_CONSECUTIVE_STATUS_ERRORS = 8;
+
+type ErrorStreak = { status: JobStatus; count: number };
+
+function nextErrorStreak(
+  job: ExecutorJob,
+  status: JobStatus,
+): ErrorStreak {
+  const previous = job.metadata.errorStreak as ErrorStreak | undefined;
+  const count = previous?.status === status ? previous.count + 1 : 1;
+  return { status, count };
 }
 
 export function createProtectedMintJob(
@@ -404,8 +424,14 @@ export class MintShieldExecutorPipeline {
         current.status !== "SETTLED_FALLBACK" &&
         current.status !== "FAILED"
       ) {
-        this.#dependencies.store.transition(current.id, current.status, {
+        const errorStreak = nextErrorStreak(current, current.status);
+        const nextStatus: JobStatus =
+          errorStreak.count >= MAX_CONSECUTIVE_STATUS_ERRORS
+            ? "FAILED"
+            : current.status;
+        this.#dependencies.store.transition(current.id, nextStatus, {
           lastError: toErrorMessage(error),
+          metadata: { errorStreak },
         });
       }
       throw error;
@@ -536,6 +562,7 @@ export class MintShieldExecutorPipeline {
       return;
     }
     this.#dependencies.store.transition(job.id, result.status, {
+      lastError: null,
       metadata:
         result.status === "SETTLED_SUCCESS"
           ? {

@@ -64,7 +64,9 @@ export function timelineExportedEvidenceJob(
             : index === recoveryIndex
               ? status === "RECOVERY_REQUIRED"
                 ? ("attention" as const)
-                : ("current" as const)
+                : status === "RECOVERED"
+                  ? ("completed" as const)
+                  : ("current" as const)
               : ("pending" as const),
       })),
     ];
@@ -91,7 +93,7 @@ export function timelineExportedEvidenceJob(
       state: ["SETTLED_SUCCESS", "SETTLED_FALLBACK", "RECOVERED"].includes(
         job.status,
       )
-        ? "current"
+        ? "completed"
         : "attention",
     });
   }

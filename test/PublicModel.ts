@@ -118,7 +118,7 @@ describe("public status model", () => {
     const recovered = result.timeline.at(-1);
 
     assert.equal(recovered?.status, "RECOVERED");
-    assert.equal(recovered?.state, "current");
+    assert.equal(recovered?.state, "completed");
     assert.equal(
       result.timeline.find((step) => step.status === "RECOVERY_FLAG_SET")
         ?.state,

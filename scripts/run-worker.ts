@@ -11,7 +11,10 @@ import {
   createCoston2PublicClient,
   createCoston2WalletClient,
 } from "../src/flare/clients.js";
-import { resolveFlareContracts } from "../src/flare/contracts.js";
+import {
+  COSTON2_CHAIN_ID,
+  resolveFlareContracts,
+} from "../src/flare/contracts.js";
 
 const RUNNABLE_STATUSES = new Set<JobStatus>([
   "XRPL_SIGNED",
@@ -70,6 +73,10 @@ const { account, client: walletClient } = createCoston2WalletClient(
   publicConfig.coston2RpcUrl,
   secrets.privateKey,
 );
+const chainId = await publicClient.getChainId();
+if (chainId !== COSTON2_CHAIN_ID) {
+  throw new Error(`Expected Coston2 chain ${COSTON2_CHAIN_ID}, got ${chainId}`);
+}
 const contracts = await resolveFlareContracts(publicClient);
 const databasePath = resolve(
   process.cwd(),
@@ -99,7 +106,7 @@ const pipeline = new MintShieldExecutorPipeline({
 log({
   service: "mintshield-executor-worker",
   executor: account.address,
-  chainId: 114,
+  chainId,
   databasePath,
   pollIntervalMs,
   once,

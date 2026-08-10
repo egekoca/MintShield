@@ -71,25 +71,39 @@ disabled wallet button is a temporary frontend error.
 
 ## Coston2 deployment
 
-Observed and verified on 30 July 2026 (`chainId` 114):
+Observed and verified on 8 August 2026 (`chainId` 114):
 
 | Contract | Address |
 |---|---|
-| MintShieldRouter | `0x65CB77AD23022C03CEc15c6EEFf01c7dea056DF8` |
-| AdapterRegistry | `0x0b8013EfE2d5c7B5be3b484ba0A275b71D719b17` |
-| ERC4626DepositAdapter | `0x62Cb9B46824C194f84B497B1b6A50Ae57C51E19B` |
-| FailureVault | `0xcB8E7C851102D4894532CbDC9cDA3C59DB3658c0` |
+| MintShieldRouter | `0x439A334B0ddB791e9b5E03C3D72311D8807B7C04` |
+| AdapterRegistry | `0x0f834C0EC1d913fb0F0E628C9788Fac9b5266530` |
+| ERC4626DepositAdapter | `0x821a6Ed361a083EA9b0cd068F0F1c2ba9bf964fc` |
+| FailureVault | `0x645d07486A51E38Eca424De0B6c375a38CA88989` |
 | FXRP | `0x0b6A3645c240605887a5532109323A3E12273dc7` |
+
+This deployment supersedes the 30 July 2026 one to close a review finding:
+`AdapterRegistry.configureAdapter()` now applies a brand-new adapter's first
+configuration immediately, but any later change to an already-live adapterId
+is only scheduled and takes effect after a 15-minute timelock
+(`activateAdapter()`). Previously the owner could atomically repoint a live
+adapterId while a user's XRPL payment was still finalizing, and the Router's
+codehash pin could not detect it because both were updated together.
+`setAdapterEnabled()` remains an immediate, timelock-free kill switch. Router,
+FailureVault and the ERC-4626 adapter are unchanged in source; they were
+redeployed only because the Router's `registry` reference is immutable.
 
 The complete manifest, deployment transaction hashes, compiler profile and
 runtime codehash are in [`deployments/coston2.json`](deployments/coston2.json).
 Run `npm run verify:coston2` to recheck code, ownership, immutable wiring, gas
 policy and registry configuration against live state.
 
-The original deployment and its calibration fallback are preserved in
+The pre-timelock deployment is preserved in
+[`deployments/coston2-v2.json`](deployments/coston2-v2.json), and the original
+deployment and its calibration fallback in
 [`deployments/coston2-v1.json`](deployments/coston2-v1.json). Redacted
-XRPL/FDC/Coston2 timelines, recovery proof and balance checks are under
-[`evidence/`](evidence/).
+XRPL/FDC/Coston2 timelines, recovery proof and balance checks recorded against
+the pre-timelock deployment are under [`evidence/`](evidence/) and are not
+rewritten; they remain historically accurate for the addresses they name.
 
 ## Why this exists
 

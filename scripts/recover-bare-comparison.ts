@@ -51,6 +51,9 @@ type RecoveryMetadata = {
   jobKind: "BARE_REVERT_COMPARISON";
   personalAccount: Address;
   coreVaultAddress: string;
+  xrplSourceAccount?: string;
+  paymentAmountDrops?: string;
+  memoData?: Hex;
   recoveryMemoData?: Hex;
   recoveryPaymentAmountDrops?: string;
   recoveryTxBlob?: string;
@@ -221,6 +224,11 @@ async function recoveryProof(details: RecoveryMetadata) {
     proof,
     transactionId: details.recoveryXrplTxHash,
     proofOwner: account.address,
+    expectedPayment: {
+      sourceAddress: xrplWallet.address,
+      receivedAmount: quote.paymentAmountUBA,
+      memoData: recoveryMemoData,
+    },
   });
   return proof;
 }
@@ -384,6 +392,16 @@ try {
         assetManager: contracts.assetManagerFXRP,
         proof,
         userOpData: "0x",
+        onSimulationSuccess: async () => {
+          store.transition(job.id, job.status, {
+            metadata: {
+              simulationKind: "EXECUTE_DIRECT_MINTING_WITH_DATA_ETH_CALL",
+              simulationPolicy: "REQUIRED_BEFORE_BROADCAST",
+              simulationResult: "OUTER_CALL_NON_REVERTING",
+              simulationPassedAt: new Date().toISOString(),
+            },
+          });
+        },
         onTransactionHash: (txHash) => {
           store.transition(job.id, "RECOVERY_FLAG_SUBMITTED", {
             metadata: { recoveryFlareTxHash: txHash },
@@ -423,10 +441,22 @@ try {
         abiEncodedRequest: job.fdcRequest!,
         votingRound: job.votingRound!,
       });
+      if (
+        details.xrplSourceAccount === undefined ||
+        details.paymentAmountDrops === undefined ||
+        details.memoData === undefined
+      ) {
+        throw new Error("Job is missing original payment coordinates");
+      }
       validateXrpPaymentProof({
         proof,
         transactionId: job.xrplTxHash!,
         proofOwner: account.address,
+        expectedPayment: {
+          sourceAddress: details.xrplSourceAccount,
+          receivedAmount: BigInt(details.paymentAmountDrops),
+          memoData: details.memoData,
+        },
       });
       const submitted = await submitDirectMintWithData({
         publicClient,
@@ -435,6 +465,16 @@ try {
         assetManager: contracts.assetManagerFXRP,
         proof,
         userOpData: job.userOpData,
+        onSimulationSuccess: async () => {
+          store.transition(job.id, job.status, {
+            metadata: {
+              simulationKind: "EXECUTE_DIRECT_MINTING_WITH_DATA_ETH_CALL",
+              simulationPolicy: "REQUIRED_BEFORE_BROADCAST",
+              simulationResult: "OUTER_CALL_NON_REVERTING",
+              simulationPassedAt: new Date().toISOString(),
+            },
+          });
+        },
         onTransactionHash: (txHash) => {
           store.transition(job.id, "RECOVERY_STUCK_SUBMITTED", {
             metadata: { stuckRetryFlareTxHash: txHash },
@@ -449,6 +489,7 @@ try {
         args: [details.personalAccount],
       });
       store.transition(job.id, "RECOVERED", {
+        lastError: null,
         metadata: {
           recoveredStuckAmount: result.amount.toString(),
           stuckRetryExecutorFee: result.executorFee.toString(),
@@ -472,6 +513,7 @@ try {
         args: [details.personalAccount],
       });
       store.transition(job.id, "RECOVERED", {
+        lastError: null,
         metadata: {
           recoveredStuckAmount: result.amount.toString(),
           stuckRetryExecutorFee: result.executorFee.toString(),

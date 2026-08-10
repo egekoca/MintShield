@@ -45,7 +45,7 @@ describe("exported evidence model", () => {
     const recovered: ExportedEvidenceJob = {
       id: "recovered",
       status: "RECOVERED",
-      details: { jobKind: "bare-comparison" },
+      details: { jobKind: "BARE_REVERT_COMPARISON" },
     };
 
     const timeline = timelineExportedEvidenceJob(recovered);
@@ -54,7 +54,7 @@ describe("exported evidence model", () => {
       "completed",
     );
     assert.equal(timeline.at(-1)?.status, "RECOVERED");
-    assert.equal(timeline.at(-1)?.state, "current");
+    assert.equal(timeline.at(-1)?.state, "completed");
     assert.deepEqual(summarizeExportedEvidenceJobs([recovered]), {
       total: 1,
       active: 0,

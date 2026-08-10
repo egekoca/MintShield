@@ -21,6 +21,7 @@ import {
   createCoston2WalletClient,
 } from "../src/flare/clients.js";
 import {
+  COSTON2_CHAIN_ID,
   getPersonalAccount,
   getSmartAccountNonce,
   readDirectMintingSettings,
@@ -88,6 +89,10 @@ const { account, client: walletClient } = createCoston2WalletClient(
   publicConfig.coston2RpcUrl,
   secrets.privateKey,
 );
+const chainId = await publicClient.getChainId();
+if (chainId !== COSTON2_CHAIN_ID) {
+  throw new Error(`Expected Coston2 chain ${COSTON2_CHAIN_ID}, got ${chainId}`);
+}
 const contracts = await resolveFlareContracts(publicClient);
 const [settings, personalAccount] = await Promise.all([
   readDirectMintingSettings(publicClient, contracts.assetManagerFXRP),

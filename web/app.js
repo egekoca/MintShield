@@ -834,7 +834,7 @@ function isRecovery(job) {
   return (
     job.status.startsWith("RECOVERY") ||
     job.status === "RECOVERED" ||
-    job.details.jobKind === "bare-comparison"
+    job.details.jobKind === "BARE_REVERT_COMPARISON"
   );
 }
 

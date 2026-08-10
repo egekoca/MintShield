@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 2,
+  "schemaVersion": 3,
   "network": "Flare Testnet Coston2",
   "chainId": 114,
-  "observedAt": "2026-07-30T00:20:25.231Z",
+  "observedAt": "2026-08-08T22:28:05.658Z",
   "deployer": "0x50E56F41681cC0589432eF8465CF4614eD99B3D8",
   "fxrp": "0x0b6A3645c240605887a5532109323A3E12273dc7",
   "adapterId": "0x5de83b0053ef109f55126082434a25e510701e2afa1227f99c54c615f118a135",
@@ -18,34 +18,41 @@
     "adapterGasLimit": "500000",
     "fallbackGasReserve": "120000"
   },
+  "registryPolicy": {
+    "adapterChangeDelaySeconds": "900",
+    "note": "AdapterRegistry.configureAdapter() applies a brand-new adapterId's first configuration immediately. Any later change to an already-live adapterId is only scheduled and requires activateAdapter() after ADAPTER_CHANGE_DELAY (15 minutes). setAdapterEnabled() remains an immediate kill switch."
+  },
   "contracts": {
     "registry": {
-      "address": "0x0b8013EfE2d5c7B5be3b484ba0A275b71D719b17",
-      "deploymentTxHash": "0x62eba618056ec428c09fa8dc4e9da19dbfe44bac064ef373d45991566fd7118e",
-      "creationBytecodeHash": "0xdb410b101c327716308f11e68ff98d9d7cfb2d223a2a751013c6077c2fd28f9d"
+      "address": "0x0f834C0EC1d913fb0F0E628C9788Fac9b5266530",
+      "deploymentTxHash": "0x45fed6b7a88367dbc251b4c579df84c4734e5ec637cedd6b667d9a0a6bcba4a6",
+      "creationBytecodeHash": "0x597249b464f6227bc41db6e388485cd180664524f855ceb625142c2ad12386ac",
+      "runtimeCodeHash": "0x64974a7891d9b36da68e367c5328fa66b262f2ac24e071e6c0980eabae79de38"
     },
     "vault": {
-      "address": "0xcB8E7C851102D4894532CbDC9cDA3C59DB3658c0",
-      "deploymentTxHash": "0xdb0bd5f7f19ef4ed8f8c422259914a9f97b5a61e7c81846c35fbffc5686a9bdd",
-      "creationBytecodeHash": "0x311c1048309aded574e0f8c94851036d05bb966acd1ba5d81a011c56ad393789"
+      "address": "0x645d07486A51E38Eca424De0B6c375a38CA88989",
+      "deploymentTxHash": "0x3305a08652bbf95a1ed5456a7ca1e32a7467a821bce308a678b553379abe5f1c",
+      "creationBytecodeHash": "0x311c1048309aded574e0f8c94851036d05bb966acd1ba5d81a011c56ad393789",
+      "runtimeCodeHash": "0x02707cb6d809d33664a80457f373df1ec71b4bca8cb933a606828a1b7d5b6706"
     },
     "router": {
-      "address": "0x65CB77AD23022C03CEc15c6EEFf01c7dea056DF8",
-      "deploymentTxHash": "0xf0f63fdde8b45874c2aed18b4b459ea0b78f70f680bfbb999cd59754c6a8cbc6",
+      "address": "0x439A334B0ddB791e9b5E03C3D72311D8807B7C04",
+      "deploymentTxHash": "0x8eba075a66b42c9669ca2a07e4b726478f47a86f64555531523fb039ff643477",
       "creationBytecodeHash": "0x01edb393e4cfd5c72d51e3aa7f9ee921f6315e9d653ed7c82f60fc945881370c",
-      "runtimeCodeHash": "0x4fbc4290c56ce3663b5cce99059f881c30974528ddb338060c632e91653bbb76"
+      "runtimeCodeHash": "0x1e92aa423d6a1e9dcd8c6bc59c9ffb2c0fa6157c3aaa9f1835da153eb971eb47"
     },
     "adapter": {
-      "address": "0x62Cb9B46824C194f84B497B1b6A50Ae57C51E19B",
-      "deploymentTxHash": "0xc1b7548ea57febb1eb70ce936397ac8b7b20271e8e9ef8fb884dace38b65a247",
+      "address": "0x821a6Ed361a083EA9b0cd068F0F1c2ba9bf964fc",
+      "deploymentTxHash": "0x7e9546597ecb282af070c00d8cc35a059bae9caa5d34493825282630897cdab9",
       "creationBytecodeHash": "0x0f11c6d68465fcbbac035ddd55afdd7f16438732ac3f3841fdff3079633fd9bd",
-      "runtimeCodeHash": "0x97abbf07572f9bf09533c8d4d71ed82dcf9cab6b7bb64dd3aacce7502c61524c"
+      "runtimeCodeHash": "0x704f48f503d44c26333d85aa970dba208255ea4f731df0f9aa6597407581fe49"
     }
   },
   "configuration": {
-    "transactionHash": "0x5fb471a624cb6954114575d945b054b2ee2d8d63a635b82b97871dbaa0f88fbf",
-    "adapterVersion": 2,
+    "transactionHash": "0xdaf1aeffd7b6678b7bb969c377ae48ba53435c44b2c28426a9511a4315e90034",
+    "adapterVersion": 1,
     "enabled": true
   },
-  "previousDeployment": "deployments/coston2-v1.json"
+  "previousDeployment": "deployments/coston2-v2.json",
+  "changeFromPrevious": "AdapterRegistry now timelocks configureAdapter() changes to an already-live adapterId behind a 15-minute delay (activateAdapter()), closing a window where the registry owner could atomically repoint a live adapterId while a user's XRPL payment was still finalizing. setAdapterEnabled() remains an immediate kill switch. Router, FailureVault and the ERC-4626 adapter are unchanged in source; they were redeployed only because the Router's registry reference is immutable."
 }

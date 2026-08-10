@@ -129,7 +129,9 @@ function timeline(job: ExecutorJob): PublicJob["timeline"] {
             : index === recoveryIndex
               ? step === "RECOVERY_REQUIRED"
                 ? ("attention" as const)
-                : ("current" as const)
+                : step === "RECOVERED"
+                  ? ("completed" as const)
+                  : ("current" as const)
               : ("pending" as const),
       })),
     ];
@@ -155,7 +157,7 @@ function timeline(job: ExecutorJob): PublicJob["timeline"] {
         status === "SETTLED_SUCCESS" ||
         status === "SETTLED_FALLBACK" ||
         status === "RECOVERED"
-          ? "current"
+          ? "completed"
           : "attention",
     });
   }

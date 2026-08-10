@@ -104,7 +104,7 @@ const recoveryJob: ExportedEvidenceJob = {
   votingRound: bareRecovery.recoveryFlag.fdcVotingRound,
   flareTxHash: bareRecovery.recoveryFlag.flareTxHash,
   details: {
-    jobKind: "bare-comparison",
+    jobKind: "BARE_REVERT_COMPARISON",
     personalAccount: bareRecovery.personalAccount,
     nonce: bareRecovery.nonce,
     recoveryXrplTxHash: bareRecovery.recoveryFlag.xrplTxHash,
@@ -157,15 +157,24 @@ function json(value: unknown, status = 200) {
 }
 
 async function readJsonBody(request: Request) {
-  const contentLength = Number(request.headers.get("content-length") ?? "0");
-  if (Number.isFinite(contentLength) && contentLength > 16_384) {
-    throw new RangeError("Request body exceeds 16 KiB");
+  const reader = request.body?.getReader();
+  if (!reader) throw new SyntaxError("Request body is required");
+  const chunks: Uint8Array[] = [];
+  let size = 0;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    size += value.byteLength;
+    if (size > 16_384) {
+      await reader.cancel();
+      throw new RangeError("Request body exceeds 16 KiB");
+    }
+    chunks.push(value);
   }
-  const text = await request.text();
-  if (text.length === 0) throw new SyntaxError("Request body is required");
-  if (Buffer.byteLength(text, "utf8") > 16_384) {
-    throw new RangeError("Request body exceeds 16 KiB");
-  }
+  if (size === 0) throw new SyntaxError("Request body is required");
+  const text = Buffer.concat(chunks.map((chunk) => Buffer.from(chunk))).toString(
+    "utf8",
+  );
   return JSON.parse(text) as unknown;
 }
 

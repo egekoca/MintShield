@@ -4,7 +4,7 @@ import { keccak256, parseEventLogs, stringToHex, zeroHash } from "viem";
 import { network } from "hardhat";
 
 describe("MintShield core", async function () {
-  const { viem } = await network.create();
+  const { viem, networkHelpers } = await network.create();
   const publicClient = await viem.getPublicClient();
   const wallets = await viem.getWalletClients();
   const [owner, user, other] = wallets;
@@ -223,8 +223,9 @@ describe("MintShield core", async function () {
   });
 
   it("enforces the per-intent amount cap without trapping funds", async function () {
+    const lowCapId = keccak256(stringToHex("LOW_CAP_V1"));
     await registry.write.configureAdapter([
-      ADAPTER_ID,
+      lowCapId,
       adapter.address,
       fxrp.address,
       AMOUNT - 1n,
@@ -232,7 +233,7 @@ describe("MintShield core", async function () {
     ]);
     await fundAndApprove();
 
-    await executeFallback(11);
+    await executeFallback(11, makeIntent({ adapterId: lowCapId }));
 
     assert.equal(await fxrp.read.balanceOf([user.account.address]), AMOUNT);
   });
@@ -499,11 +500,13 @@ describe("MintShield core", async function () {
     );
   });
 
-  it("stores the runtime code hash and versions registry updates", async function () {
+  it("stores the runtime code hash and applies the first configuration immediately", async function () {
     const first = await registry.read.getAdapter([ADAPTER_ID]);
     assert.notEqual(first.codeHash, zeroHash);
     assert.equal(first.version, 1n);
+  });
 
+  it("delays a change to an already-live adapter behind a timelock", async function () {
     await registry.write.configureAdapter([
       ADAPTER_ID,
       adapter.address,
@@ -511,9 +514,54 @@ describe("MintShield core", async function () {
       CAP + 1n,
       true,
     ]);
-    const second = await registry.read.getAdapter([ADAPTER_ID]);
-    assert.equal(second.version, 2n);
-    assert.equal(second.maxAmount, CAP + 1n);
+
+    const unchanged = await registry.read.getAdapter([ADAPTER_ID]);
+    assert.equal(unchanged.version, 1n);
+    assert.equal(unchanged.maxAmount, CAP);
+
+    const pending = await registry.read.getPendingAdapter([ADAPTER_ID]);
+    assert.equal(pending.maxAmount, CAP + 1n);
+    assert.notEqual(pending.effectiveAt, 0n);
+
+    await assert.rejects(
+      registry.write.activateAdapter([ADAPTER_ID]),
+      /AdapterTimelockNotElapsed/,
+    );
+
+    await networkHelpers.time.increase(15 * 60);
+    await registry.write.activateAdapter([ADAPTER_ID], {
+      account: other.account,
+    });
+
+    const activated = await registry.read.getAdapter([ADAPTER_ID]);
+    assert.equal(activated.version, 2n);
+    assert.equal(activated.maxAmount, CAP + 1n);
+  });
+
+  it("lets the owner cancel a pending adapter change before it activates", async function () {
+    await registry.write.configureAdapter([
+      ADAPTER_ID,
+      adapter.address,
+      fxrp.address,
+      CAP + 1n,
+      true,
+    ]);
+    await registry.write.cancelAdapterChange([ADAPTER_ID]);
+
+    await networkHelpers.time.increase(15 * 60);
+    await assert.rejects(
+      registry.write.activateAdapter([ADAPTER_ID]),
+      /NoPendingAdapterChange/,
+    );
+    const config = await registry.read.getAdapter([ADAPTER_ID]);
+    assert.equal(config.version, 1n);
+    assert.equal(config.maxAmount, CAP);
+  });
+
+  it("disables an already-live adapter immediately, without a timelock", async function () {
+    await registry.write.setAdapterEnabled([ADAPTER_ID, false]);
+    const config = await registry.read.getAdapter([ADAPTER_ID]);
+    assert.equal(config.enabled, false);
   });
 
   it("restricts registry administration to the owner", async function () {
