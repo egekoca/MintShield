@@ -22,7 +22,7 @@ const translations = {
     heroTitle: "Aksiyon başarısız olsun.",
     heroAccent: "FXRP güvende kalsın.",
     heroBody:
-      "MintShield, FAssets direct mint sonrasına failure-isolated bir yürütme sınırı ekler. Aksiyon tamamlanır ya da exact FXRP, recovery deneyimi gerektirmeden kullanıcının Personal Account’unda kalır.",
+      "Flare Smart Account üzerinden FXRP mint edip aynı imzayla bir sonraki adımda kullanıyorsunuz. O adım başarısız olursa MintShield, mintiniz askıda kalmak yerine tam FXRP tutarını geri verir — ikinci bir XRPL ödemesi ya da öğrenilmesi gereken bir kurtarma akışı yok.",
     planAction: "Canlı ön izlemeyi çalıştır",
     seeFlow: "Yürütme akışını gör",
     noSeed: "Seed saklanmaz",
@@ -200,7 +200,7 @@ const translations = {
     heroTitle: "Let the action fail.",
     heroAccent: "Keep the FXRP safe.",
     heroBody:
-      "MintShield adds a failure-isolated execution boundary after an FAssets direct mint. The action settles, or the exact FXRP remains in the user's Personal Account—without recovery UX.",
+      "You mint FXRP through a Flare Smart Account and use it immediately in one signed transaction. If the next step fails, MintShield returns your exact FXRP instead of leaving your mint stuck — no second XRPL payment, no recovery flow to learn.",
     planAction: "Run a live preview",
     seeFlow: "See the execution flow",
     noSeed: "No seed custody",
